@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="card">
+        <img src="logo.png" alt="The Pantheon" class="nav-logo">
+        <h2>Create Account</h2>
+        <p>Register a new account</p>
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="regName">Name</label>
+                <input type="text" id="regName" required placeholder="Enter your full name">
+            </div>
+            <div class="input-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" required placeholder="Enter your email">
+            </div>
+            <div class="input-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" required placeholder="Create a password">
+            </div>
+            <p id="registerMessage" class="message"></p>
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+
+        <form id="otpForm" style="display:none;">
+            <h3>Verify Your Email</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem; color: #555;">An OTP has been sent to your email address.
+                It is valid for 10 minutes.</p>
+            <div class="input-group">
+                <label for="otpInput">OTP Code</label>
+                <input type="text" id="otpInput" required placeholder="Enter 6-digit OTP">
+            </div>
+            <p id="otpMessage" class="message"></p>
+            <button type="submit" class="btn">Verify</button>
+        </form>
+
+        <p class="switch-form" id="switchFormText">Already have an account? <a href="login.html">Login</a></p>
+        <!-- hidden text -->
+        <span class="hidden-text" aria-hidden="true" style="display:none;">UDAIY</span>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>

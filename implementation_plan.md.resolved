@@ -1,0 +1,49 @@
+# Implementation Plan: Secure Login and Registration System
+
+Goal: Build a secure, fully functional login and registration system using HTML/CSS/JS (frontend) and Node.js/Express/MongoDB (backend).
+
+## User Review Required
+> [!IMPORTANT]
+> Please review this file structure and the proposed plan below. I will wait for your green light before proceeding to write the code and run any terminal commands (like `npm init` or installing dependencies).
+
+## Proposed File Structure
+
+### Backend
+#### [NEW] d:/1/web D/server.js
+Main Express server setup, MongoDB connection (Mongoose), and routing logic. Serves static frontend files and API endpoints.
+
+#### [NEW] d:/1/web D/models/User.js
+Mongoose schema for User (Name, Email, Password, Roll Number). Passwords will be securely hashed using bcrypt before saving.
+
+#### [NEW] d:/1/web D/routes/auth.js
+Express routes for handling `/api/auth/register`, `/api/auth/login`, and `/api/user/info` (fetching dashboard data). JWT (JSON Web Tokens) or session will be used for authentication.
+
+#### [NEW] d:/1/web D/middleware/authMiddleware.js
+Middleware to protect the dashboard route and ensure only authenticated users can access their details.
+
+### Frontend
+#### [NEW] d:/1/web D/public/index.html
+Login page with a sleek, minimalist card UI.
+
+#### [NEW] d:/1/web D/public/register.html
+Registration page (Name, Email, Password, Roll Number).
+
+#### [NEW] d:/1/web D/public/dashboard.html
+Protected dashboard page fetched dynamically. After login, the API is called to fetch the user's data and display: "Welcome, [Name]! Roll Number: [Roll Number]".
+
+#### [NEW] d:/1/web D/public/style.css
+Clean, modern, minimalist UI design with centered cards, soft shadows, clear input fields, and no background images.
+
+#### [NEW] d:/1/web D/public/main.js
+Vanilla JavaScript to handle form submissions, manage fetch requests to the backend, handle token storage, and execute dynamic DOM updates. Includes the hidden text 'UDAIY' in an invisible span element present in the DOM but hidden from the visual UI.
+
+### Config & Documentation
+#### [NEW] d:/1/web D/.env.template
+Template for environment variables (e.g., `MONGO_URI`, `JWT_SECRET`, `PORT`).
+
+#### [NEW] d:/1/web D/README.md
+Instructions on how to configure `.env`, start the local server, and run the application.
+
+## Verification Plan
+### Automated Tests
+Once the code is written, dependencies are installed, and the `.env` file is properly configured by you, I will start the local server and use the Browser Agent to autonomously test the signup and login flow to verify that it functions correctly.

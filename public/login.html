@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="card">
+        <img src="logo.png" alt="The Pantheon" class="nav-logo">
+        <h2>Welcome Back</h2>
+        <p>Login to your account</p>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required placeholder="Enter your email">
+            </div>
+            <div class="input-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required placeholder="Enter your password">
+            </div>
+            <p id="loginMessage" class="message error"></p>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <p class="switch-form">Don't have an account? <a href="register.html">Sign Up</a></p>
+        <!-- hidden text -->
+        <span class="hidden-text" aria-hidden="true" style="display:none;">UDAIY</span>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>

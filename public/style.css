@@ -1,0 +1,269 @@
+:root {
+    --bg-color: #3a110f;
+    --card-bg: #F4EAE1;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --primary-color: #3a110f;
+    --primary-hover: #541915;
+    --border-color: #e5e7eb;
+    --error-color: #ef4444;
+    --success-color: #10b981;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Auth Cards */
+.card {
+    background-color: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.nav-logo {
+    height: 64px;
+    width: auto;
+    display: block;
+    margin: 0 auto 1.5rem auto;
+    object-fit: contain;
+}
+
+.card h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card>p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: inherit;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+    font-family: inherit;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.switch-form {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.switch-form a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.switch-form a:hover {
+    text-decoration: underline;
+}
+
+.message {
+    font-size: 0.875rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    min-height: 1.25rem;
+}
+
+.message.error {
+    color: var(--error-color);
+}
+
+.message.success {
+    color: var(--success-color);
+}
+
+/* Dashboard Styles */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+.dashboard-header {
+    width: 100%;
+    max-width: unset;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.roll-number {
+    font-size: 1.125rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.dashboard-main {
+    width: 100%;
+}
+
+.dashboard-card {
+    max-width: unset;
+    text-align: left;
+}
+
+.dashboard-card h2 {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.info-group p {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.info-group strong {
+    color: var(--text-primary);
+    display: inline-block;
+    width: 120px;
+}
+
+/* Landing Page Styles */
+.landing-body {
+    margin: 0;
+    padding: 0;
+    background-image: url('second.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
+    display: block;
+}
+
+.landing-header {
+    background-color: #F4EAE1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    position: relative;
+}
+
+.landing-logo {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 2rem;
+    color: #210a08;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.landing-login-btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 1.25rem;
+    color: #F4EAE1;
+    text-decoration: none;
+    text-transform: lowercase;
+    transition: all 0.3s ease;
+
+    /* Glossy effect with red scheme */
+    background: linear-gradient(135deg, #541915 0%, #3a110f 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 2rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2);
+}
+
+.landing-login-btn:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #6c221d 0%, #4a1714 100%);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.dashboard-bg {
+    background-image: url('second.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
