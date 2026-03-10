@@ -4,18 +4,902 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Pantheon</title>
+    <title>ViceRide</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-white);
+            color: var(--primary-black);
+            display: block;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .ViceRide-nav {
+            background-color: var(--primary-black);
+            padding: 0.8rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary-white);
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .ViceRide-logo {
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: -0.05em;
+            margin-right: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-white);
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: var(--primary-white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.5rem 0.8rem;
+            border-radius: 9999px;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-pill {
+            background-color: var(--primary-white);
+            color: var(--primary-black);
+            padding: 0.4rem 0.8rem 0.4rem 0.4rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .user-pill .avatar {
+            width: 28px;
+            height: 28px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: var(--primary-white);
+            color: var(--primary-black);
+            min-width: 240px;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            z-index: 100;
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--light-gray);
+        }
+
+        /* Autocomplete dropdown styling */
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .autocomplete-item {
+            padding: 0.65rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+        }
+
+        .autocomplete-item:hover {
+            background: #f5f5f5;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 4rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            display: flex;
+            gap: 4rem;
+            margin-bottom: 5rem;
+            align-items: center;
+        }
+
+        .hero-left {
+            flex: 1;
+        }
+
+        .hero-right {
+            flex: 1;
+            height: 500px;
+            background: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-right img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .promo-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #E8F5E9;
+            color: #1B5E20;
+            padding: 0.3rem 0.8rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .location-inputs {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--light-gray);
+            padding: 1rem;
+        }
+
+        .input-wrapper input {
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .connecting-line {
+            position: absolute;
+            left: 1.3rem;
+            top: 2.5rem;
+            bottom: 2.5rem;
+            width: 2px;
+            background: var(--primary-black);
+            z-index: 0;
+        }
+
+        .input-icon {
+            width: 10px;
+            height: 10px;
+            background: var(--primary-black);
+            border-radius: 50%;
+            margin-right: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-wrapper:last-child .input-icon {
+            border-radius: 0;
+        }
+
+        /* Suggestions */
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .suggestions-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .suggestions-row.two-cols {
+            grid-template-columns: repeat(2, 1fr);
+            margin-bottom: 5rem;
+        }
+
+        .suggestion-card {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-height: 160px;
+            transition: transform 0.2s;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .suggestion-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .suggestion-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-card p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            max-width: 60%;
+        }
+
+        .suggestion-card .btn-secondary {
+            width: fit-content;
+            margin-top: auto;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            z-index: 2;
+        }
+
+        .suggestion-card img {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+            z-index: 1;
+        }
+
+        .suggestion-card.card-large img {
+            height: 120px;
+            right: 20px;
+        }
+
+        /* Reserve Banner */
+        .reserve-banner {
+            background: #E7DECF;
+            color: var(--primary-black);
+            padding: 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5rem;
+        }
+
+        .reserve-left {
+            flex: 1;
+            padding-right: 4rem;
+        }
+
+        .reserve-left h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .reserve-inputs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .reserve-inputs input {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .reserve-right {
+            flex: 0.8;
+        }
+
+        .benefits-card {
+            background: var(--primary-white);
+            color: var(--primary-black);
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .benefits-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-item span {
+            font-size: 1.2rem;
+        }
+
+        .benefit-item p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: var(--text-gray);
+            margin: 0;
+        }
+
+        /* Footer */
+        .ViceRide-footer {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 4rem;
+        }
+
+        .ViceRide-footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .ViceRide-footer h2 {
+            margin-bottom: 3rem;
+            font-size: 1.5rem;
+            letter-spacing: 0;
+        }
+
+        .footer-cols {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-col h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-col ul li a {
+            color: #A0A0A0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary-white);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .social-icons span {
+            cursor: pointer;
+            color: #A0A0A0;
+            transition: color 0.2s;
+        }
+
+        .social-icons span:hover {
+            color: var(--primary-white);
+        }
+
+        .lang-loc {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .lang-loc span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #A0A0A0;
+        }
+
+        .lang-loc span:hover {
+            color: var(--primary-white);
+        }
+    </style>
 </head>
 
-<body class="landing-body">
-    <header class="landing-header">
-        <h1 class="landing-logo">THE PANTHEON</h1>
-        <a href="login.html" class="landing-login-btn">log in</a>
-    </header>
-    <!-- hidden text -->
+<body>
     <span class="hidden-text" aria-hidden="true" style="display:none;">UDAIY</span>
+
+    <!-- Navbar -->
+    <nav class="ViceRide-nav">
+        <div class="nav-left">
+            <a href="index.html" class="ViceRide-logo">ViceRide</a>
+            <a href="#" class="nav-link">Ride</a>
+            <a href="#" class="nav-link">Drive</a>
+            <a href="#" class="nav-link">Business</a>
+            <a href="#" class="nav-link">About</a>
+        </div>
+        <div class="nav-right">
+            <span class="nav-link" style="display:flex; align-items:center; gap:0.3rem;">🌐 EN</span>
+            <a href="#" class="nav-link">Help</a>
+
+            <div id="authButtons" style="display:flex; gap:1rem;">
+                <a href="login.html" class="nav-link" style="background:#333;">Log in</a>
+                <a href="register.html" class="nav-link"
+                    style="background:var(--primary-white); color:var(--primary-black);">Sign up</a>
+            </div>
+
+            <div id="userMenuContainer" style="display:none; position:relative;">
+                <div class="user-pill rounded-full" id="userPillBtn">
+                    <div class="avatar" id="navAvatar">👤</div>
+                    <span id="navUsername">udaiy</span>
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <a href="#" class="dropdown-item"><span>🚗</span> Drive & deliver</a>
+                    <a href="#" class="dropdown-item"><span>📍</span> Ride</a>
+                    <a href="#" class="dropdown-item"><span>🍴</span> ViceRide Eats</a>
+                    <a href="#" class="dropdown-item"><span>💼</span> ViceRide for Business</a>
+                    <hr style="border:0; border-top:1px solid #eee; margin:0.5rem 0;">
+                    <a href="dashboard.html" class="dropdown-item"><span>⚙️</span> Manage account</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn"><span>🚪</span> Sign out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-left">
+                <h1 class="hero-title heading-bold">Request a ride for now or later</h1>
+                <div class="promo-tag"><span>🟢</span> New: Reserve your ride in advance</div>
+
+                <div class="location-inputs">
+                    <div class="connecting-line"></div>
+                    <div class="input-wrapper rounded-xl" style="position: relative;">
+                        <div class="input-icon"></div>
+                        <input type="text" id="pickup" placeholder="Pickup location">
+                    </div>
+                    <div class="input-wrapper rounded-xl" style="background: #E8E8E8; position: relative;">
+                        <div class="input-icon" style="border-radius: 0;"></div>
+                        <input type="text" id="destination" placeholder="Dropoff location">
+                    </div>
+                </div>
+
+                <button id="seePricesBtn" class="btn-primary rounded-xl"
+                    style="font-size: 1.1rem; width: fit-content; padding: 1rem 2rem;">See prices</button>
+            </div>
+            <div class="hero-right rounded-2xl">
+                <img src="SIDEIMAGE.png" alt="ViceRide Illustration">
+            </div>
+        </div>
+
+        <!-- Suggestions Section -->
+        <h2 class="section-title heading-bold">Suggestions</h2>
+        <div class="suggestions-row">
+            <div class="suggestion-card rounded-xl">
+                <h3 class="heading-bold">Ride</h3>
+                <p>Go anywhere with ViceRide</p>
+                <button class="btn-secondary rounded-full">Details</button>
+                <img src="caropen.png" alt="Ride">
+            </div>
+            <div class="suggestion-card rounded-xl">
+                <h3 class="heading-bold">Reserve</h3>
+                <p>Reserve a ride in advance</p>
+                <button class="btn-secondary rounded-full">Details</button>
+                <img src="first.jpg" alt="Reserve" style="border-radius: 8px;">
+            </div>
+            <div class="suggestion-card rounded-xl">
+                <h3 class="heading-bold">Intercity</h3>
+                <p>Go outstation</p>
+                <button class="btn-secondary rounded-full">Details</button>
+                <img src="vice ride.png" alt="Intercity" style="border-radius: 8px;">
+            </div>
+        </div>
+        <div class="suggestions-row two-cols">
+            <div class="suggestion-card card-large rounded-xl">
+                <h3 class="heading-bold">Rentals</h3>
+                <p>Rent a car for your daily needs</p>
+                <button class="btn-secondary rounded-full">Details</button>
+                <img src="rentals_illustration.png" alt="Rentals">
+            </div>
+            <div class="suggestion-card card-large rounded-xl">
+                <h3 class="heading-bold">Bike</h3>
+                <p>Beat the traffic with ViceRide Moto</p>
+                <button class="btn-secondary rounded-full">Details</button>
+                <img src="second.jpg" alt="Bike" style="border-radius: 8px;">
+            </div>
+        </div>
+
+        <!-- Plan for later -->
+        <div class="reserve-banner rounded-2xl">
+            <div class="reserve-left">
+                <h2 class="heading-bold">Get your ride right with ViceRide Reserve</h2>
+                <div class="reserve-inputs">
+                    <input type="date" style="flex:1;">
+                    <input type="time" style="flex:1;">
+                </div>
+                <button class="btn-primary rounded-full">Next</button>
+            </div>
+            <div class="reserve-right">
+                <div class="benefits-card rounded-2xl">
+                    <h3 class="heading-bold">Benefits</h3>
+                    <div class="benefit-item">
+                        <span>📅</span>
+                        <p><strong>Reserve up to 90 days in advance</strong> <br> Plan out your trip ahead of time</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span>⏱️</span>
+                        <p><strong>Extra wait time included</strong> <br> Take your time getting to the car</p>
+                    </div>
+                    <div class="benefit-item">
+                        <span>💳</span>
+                        <p><strong>Lock in your price</strong> <br> Upfront pricing based on your route</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="ViceRide-footer">
+        <div class="ViceRide-footer-container">
+            <h2>ViceRide</h2>
+            <div class="footer-cols">
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About us</a></li>
+                        <li><a href="#">Our offerings</a></li>
+                        <li><a href="#">Newsroom</a></li>
+                        <li><a href="#">Investors</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Products</h4>
+                    <ul>
+                        <li><a href="#">Ride</a></li>
+                        <li><a href="#">Drive</a></li>
+                        <li><a href="#">Deliver</a></li>
+                        <li><a href="#">Eat</a></li>
+                        <li><a href="#">ViceRide for Business</a></li>
+                        <li><a href="#">ViceRide Freight</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Global citizenship</h4>
+                    <ul>
+                        <li><a href="#">Safety</a></li>
+                        <li><a href="#">Diversity and Inclusion</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Travel</h4>
+                    <ul>
+                        <li><a href="#">Reserve</a></li>
+                        <li><a href="#">Airports</a></li>
+                        <li><a href="#">Cities</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="social-icons">
+                    <span>LI</span>
+                    <span>YT</span>
+                    <span>IG</span>
+                    <span>X</span>
+                </div>
+                <div class="lang-loc">
+                    <span>🌐 English</span>
+                    <span>📍 New Delhi</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Coordinates & Autocomplete ---
+        let pickupCoords = null, dropoffCoords = null;
+
+        function debounce(fn, delay) {
+            let timer;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function setupAutocomplete(inputId, isPickup) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const wrapper = input.parentElement;
+
+            let listEl = document.createElement('div');
+            listEl.className = 'autocomplete-list';
+            listEl.style.display = 'none';
+            wrapper.appendChild(listEl);
+
+            const search = debounce(async (query) => {
+                if (query.length < 2) { listEl.style.display = 'none'; return; }
+
+                listEl.innerHTML = '<div class="autocomplete-item" style="color:#999;">Searching...</div>';
+                listEl.style.display = 'block';
+
+                if (input._abortCtrl) input._abortCtrl.abort();
+                input._abortCtrl = new AbortController();
+
+                try {
+                    const res = await fetch(
+                        `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`,
+                        { signal: input._abortCtrl.signal }
+                    );
+                    const data = await res.json();
+                    const results = data.features || [];
+
+                    listEl.innerHTML = '';
+                    if (results.length === 0) {
+                        listEl.innerHTML = '<div class="autocomplete-item" style="color:#999;">No results found</div>';
+                        return;
+                    }
+
+                    results.forEach(feature => {
+                        const props = feature.properties;
+                        const coords = feature.geometry.coordinates; // [lng, lat]
+                        const displayName = [props.name, props.city, props.state, props.country].filter(Boolean).join(', ');
+
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.textContent = displayName;
+                        item.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            input.value = displayName;
+                            listEl.style.display = 'none';
+
+                            const lat = coords[1];
+                            const lng = coords[0];
+
+                            if (isPickup) {
+                                pickupCoords = [lat, lng];
+                            } else {
+                                dropoffCoords = [lat, lng];
+                            }
+                        });
+                        listEl.appendChild(item);
+                    });
+                    listEl.style.display = 'block';
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.error('Geocoding error:', err);
+                    listEl.innerHTML = '<div class="autocomplete-item" style="color:#999;">Error searching</div>';
+                }
+            }, 250);
+
+            input.addEventListener('input', (e) => search(e.target.value));
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) listEl.style.display = 'none';
+            });
+        }
+
+        // Initialize autocompletes
+        setupAutocomplete('pickup', true);
+        setupAutocomplete('destination', false);
+
+        // Auto-detect user's location for pickup
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    pickupCoords = [lat, lng];
+
+                    try {
+                        const res = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}`);
+                        const data = await res.json();
+                        if (data.features && data.features.length > 0) {
+                            const props = data.features[0].properties;
+                            const displayName = [props.name, props.street, props.city, props.state].filter(Boolean).join(', ');
+                            document.getElementById('pickup').value = displayName || 'Your current location';
+                        } else {
+                            document.getElementById('pickup').value = 'Your current location';
+                        }
+                    } catch {
+                        document.getElementById('pickup').value = 'Your current location';
+                    }
+                },
+                () => { console.log('Geolocation denied or unavailable'); },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // --- 2. Routing logic ('See Prices') ---
+        const seePricesBtn = document.getElementById('seePricesBtn');
+        if (seePricesBtn) {
+            seePricesBtn.addEventListener('click', () => {
+                const pickText = document.getElementById('pickup').value;
+                const dropText = document.getElementById('destination').value;
+
+                if (pickText && dropText && pickupCoords && dropoffCoords) {
+                    window.location.href = 'book.html?pickup=' + encodeURIComponent(pickText)
+                        + '&destination=' + encodeURIComponent(dropText)
+                        + '&pickupLat=' + pickupCoords[0]
+                        + '&pickupLng=' + pickupCoords[1]
+                        + '&dropoffLat=' + dropoffCoords[0]
+                        + '&dropoffLng=' + dropoffCoords[1];
+                } else if (!pickText || !dropText) {
+                    alert('Please enter both a pickup and dropoff location.');
+                } else {
+                    alert('Please select the locations from the dropdown suggestions so we can find a route.');
+                }
+            });
+        }
+
+        // --- 3. Suggestions Details Buttons ---
+        const attachSuggestionRedirect = (index, targetUrl) => {
+            const btns = document.querySelectorAll('.suggestion-card .btn-secondary');
+            if (btns[index]) {
+                btns[index].addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.location.href = targetUrl;
+                });
+            }
+        };
+        // Mapping matches HTML order: Ride(0), Reserve(1), Intercity(2), Rentals(3), Bike(4)
+        attachSuggestionRedirect(0, 'book.html');
+        attachSuggestionRedirect(1, 'book.html');
+        attachSuggestionRedirect(2, 'book.html');
+        attachSuggestionRedirect(3, 'rental-book.html');
+        attachSuggestionRedirect(4, 'book.html');
+
+        // --- 4. Reserve Banner Button ---
+        const reserveNextBtn = document.querySelector('.reserve-banner .btn-primary');
+        if (reserveNextBtn) {
+            const dateInput = document.querySelector('.reserve-inputs input[type="date"]');
+            const timeInput = document.querySelector('.reserve-inputs input[type="time"]');
+            reserveNextBtn.addEventListener('click', () => {
+                if (!dateInput.value || !timeInput.value) {
+                    alert("Please select a valid date and time for your reservation.");
+                    return;
+                }
+                const reserveUrl = `book.html?reserveDate=${dateInput.value}&reserveTime=${timeInput.value}`;
+                window.location.href = reserveUrl;
+            });
+        }
+
+        // --- 5. User Pill Dropdown Logic ---
+        const userPillBtn = document.getElementById('userPillBtn');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userPillBtn) {
+            userPillBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (!userPillBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Login Auth Check
+        (async function () {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const res = await fetch('/api/user/info', {
+                        method: 'GET',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    if (res.ok) {
+                        const user = await res.json();
+                        document.getElementById('authButtons').style.display = 'none';
+                        document.getElementById('userMenuContainer').style.display = 'block';
+                        document.getElementById('navUsername').textContent = user.name || 'udaiy';
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                } catch (e) { console.error('Error fetching user info'); }
+            }
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    window.location.reload();
+                });
+            }
+        })();
+    </script>
 </body>
 
 </html>

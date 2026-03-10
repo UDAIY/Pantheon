@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Login - ViceRide</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Extra driver-specific styles */
+        body {
+            background-color: var(--primary-black);
+        }
+
+        .card {
+            border-top: 4px solid #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1 class="landing-logo" style="margin-bottom: 2rem; color: var(--text-primary); font-size: 2.5rem;">ViceRide
+            Pro
+        </h1>
+        <h2>Driver Portal</h2>
+        <p>Login to manage your rides</p>
+
+        <form id="driverLoginForm">
+            <div class="input-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required placeholder="Enter your email">
+            </div>
+            <div class="input-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required placeholder="Enter your password">
+            </div>
+            <p id="loginMessage" class="message error"></p>
+            <button type="submit" class="btn btn-primary" id="loginBtn">Login as Driver</button>
+        </form>
+        <p class="switch-form">Want to drive with us? <a href="driver-register.html">Apply Now</a></p>
+        <p class="switch-form" style="margin-top: 5px;"><a href="login.html"
+                style="color:var(--text-secondary);">Looking for Rider Login?</a></p>
+    </div>
+    <script src="driver-auth.js"></script>
+</body>
+
+</html>

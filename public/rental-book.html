@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Rental — ViceRide</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .book-nav {
+            background: #000;
+            padding: 0 5rem;
+            height: 8.7vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .book-nav h1 {
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .book-nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .book-nav-right span {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .nav-back-btn {
+            background: none;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .book-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .book-left {
+            width: 420px;
+            min-width: 420px;
+            padding: 2rem 2.5rem;
+            border-right: 1px solid #eee;
+            overflow-y: auto;
+        }
+
+        .book-right {
+            flex: 1;
+            position: relative;
+        }
+
+        .book-right #rentalMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-icon {
+            font-size: 1.3rem;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 0.95rem;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .fare-box {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .fare-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #000;
+        }
+
+        .fare-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 0.95rem;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s;
+        }
+
+        .confirm-btn:hover {
+            background: #222;
+        }
+
+        .confirm-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .confirm-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .confirm-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .success-overlay.show {
+            display: flex;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+        }
+
+        .success-text {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .success-sub {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="book-nav">
+        <h1>ViceRide</h1>
+        <div class="book-nav-right">
+            <span id="bookWelcome"></span>
+            <button class="nav-back-btn" onclick="window.location.href='index.html'">Back to Home</button>
+        </div>
+    </nav>
+
+    <div class="book-content">
+        <div class="book-left">
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 1.5rem; color: #000;">Confirm Rental</h2>
+
+            <div class="detail-row">
+                <div class="detail-icon">📍</div>
+                <div>
+                    <div class="detail-label">Pickup Location</div>
+                    <div class="detail-value" id="pickupAddress">—</div>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-icon">⏱️</div>
+                <div>
+                    <div class="detail-label">Package</div>
+                    <div class="detail-value" id="packageDisplay">—</div>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-icon">🚗</div>
+                <div>
+                    <div class="detail-label">Vehicle</div>
+                    <div class="detail-value" id="vehicleDisplay">—</div>
+                </div>
+            </div>
+
+            <div class="fare-box">
+                <div class="fare-label">Estimated Fare</div>
+                <div class="fare-amount" id="fareDisplay">—</div>
+            </div>
+
+            <button class="confirm-btn" id="confirmBtn">Confirm Rental</button>
+            <p class="error-msg" id="errorMsg"></p>
+        </div>
+
+        <div class="book-right">
+            <div id="rentalMap"></div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-icon">✅</div>
+        <div class="success-text">Rental Confirmed!</div>
+        <div class="success-sub">A driver has been assigned. Redirecting to dashboard...</div>
+    </div>
+
+    <script src="rental-book.js"></script>
+</body>
+
+</html>

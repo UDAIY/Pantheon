@@ -11,12 +11,16 @@
 
 <body>
     <div class="card">
-        <img src="logo.png" alt="The Pantheon" class="nav-logo">
+        <h1 class="landing-logo" style="margin-bottom: 2rem; color: var(--text-primary); font-size: 2.5rem;">ViceRide
+        </h1>
         <h2>Create Account</h2>
         <p>Register a new account</p>
+
+
         <form id="registerForm">
+            <!-- Common Fields -->
             <div class="input-group">
-                <label for="regName">Name</label>
+                <label for="regName">Full Name</label>
                 <input type="text" id="regName" required placeholder="Enter your full name">
             </div>
             <div class="input-group">
@@ -27,6 +31,14 @@
                 <label for="regPassword">Password</label>
                 <input type="password" id="regPassword" required placeholder="Create a password">
             </div>
+
+            <!-- Phone (visible for both) -->
+            <div class="input-group">
+                <label for="regPhone">Phone Number</label>
+                <input type="tel" id="regPhone" placeholder="Enter your phone number">
+            </div>
+
+
             <p id="registerMessage" class="message"></p>
             <button type="submit" class="btn">Sign Up</button>
         </form>
@@ -44,6 +56,9 @@
         </form>
 
         <p class="switch-form" id="switchFormText">Already have an account? <a href="login.html">Login</a></p>
+        <p class="switch-form" style="margin-top: 10px;"><a href="driver-register.html"
+                style="color: #666; font-size: 0.9rem; text-decoration: none; font-weight: 600;">Sign up as a Driver</a>
+        </p>
         <!-- hidden text -->
         <span class="hidden-text" aria-hidden="true" style="display:none;">UDAIY</span>
     </div>

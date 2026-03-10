@@ -10,6 +10,7 @@ const authMiddleware = (req, res, next) => {
         const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
         const decoded = jwt.verify(token, JWT_SECRET);
         req.userId = decoded.userId;
+        req.userRole = decoded.role || 'user';
         next();
     } catch (err) {
         res.status(400).json({ message: 'Invalid token.' });

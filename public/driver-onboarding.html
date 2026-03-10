@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Onboarding - ViceRide Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: var(--primary-black);
+        }
+
+        .dashboard-container {
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .step-card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--border-color);
+            transition: border-color 0.3s;
+        }
+
+        .step-card.active {
+            border-left-color: #3b82f6;
+        }
+
+        /* Blue for active */
+        .step-card.completed {
+            border-left-color: var(--success-color);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .step-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-card.active .step-content {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* File Input Styling */
+        input[type="file"] {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            width: 100%;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header" style="text-align: center; margin-bottom: 2rem;">
+            <h1 class="landing-logo" style="margin-bottom: 1rem; color: var(--text-primary); font-size: 2.5rem;">
+                ViceRide Pro</h1>
+            <h2 style="color: #fff;">Complete Your Profile</h2>
+            <p style="color: #a0a0a0;">Submit your documents to start driving</p>
+        </div>
+
+        <div id="stepsContainer">
+            <!-- Step 1: License -->
+            <div class="step-card" id="step1Card">
+                <div class="step-title">
+                    <span>1. Driving License</span>
+                    <span class="status-badge" id="step1Status">Pending</span>
+                </div>
+                <div class="step-content">
+                    <form id="step1Form">
+                        <div class="input-group">
+                            <label>License Number</label>
+                            <input type="text" id="licenseNumber" required placeholder="DL-XXXXXX">
+                        </div>
+                        <div class="input-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dob" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Upload Driving License (Photo/PDF)</label>
+                            <input type="file" id="licenseDoc" required accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Submit Document</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 2: Profile Photo -->
+            <div class="step-card" id="step2Card">
+                <div class="step-title">
+                    <span>2. Profile Photo</span>
+                    <span class="status-badge" id="step2Status">Pending</span>
+                </div>
+                <div class="step-content">
+                    <form id="step2Form">
+                        <div class="input-group">
+                            <label>Upload a clear frontal face photo</label>
+                            <input type="file" id="profilePhoto" required accept=".jpg,.jpeg,.png">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Submit Photo</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 3: Aadhaar -->
+            <div class="step-card" id="step3Card">
+                <div class="step-title">
+                    <span>3. Aadhaar Card</span>
+                    <span class="status-badge" id="step3Status">Pending</span>
+                </div>
+                <div class="step-content">
+                    <form id="step3Form">
+                        <div class="input-group"
+                            style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem;">
+                            <input type="checkbox" id="consentCb" required style="width: auto;">
+                            <label style="margin: 0;">I consent to identity verification</label>
+                        </div>
+                        <div class="input-group">
+                            <label>Upload Aadhaar Card (Front/Back combined or PDF)</label>
+                            <input type="file" id="aadhaarDoc" required accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Submit Document</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 4: RC -->
+            <div class="step-card" id="step4Card">
+                <div class="step-title">
+                    <span>4. Vehicle Registration (RC)</span>
+                    <span class="status-badge" id="step4Status">Pending</span>
+                </div>
+                <div class="step-content">
+                    <form id="step4Form">
+                        <div class="input-group">
+                            <label>Vehicle Registration Number (Plate)</label>
+                            <input type="text" id="vehicleReg" required placeholder="UP 32 XX 1234">
+                        </div>
+                        <div class="input-group">
+                            <label>Upload RC Document</label>
+                            <input type="file" id="rcDoc" required accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Submit Document</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 5: Insurance -->
+            <div class="step-card" id="step5Card">
+                <div class="step-title">
+                    <span>5. Vehicle Insurance</span>
+                    <span class="status-badge" id="step5Status">Pending</span>
+                </div>
+                <div class="step-content">
+                    <form id="step5Form">
+                        <div class="input-group">
+                            <label>Linked License Plate</label>
+                            <input type="text" id="insurancePlate" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Upload Active Insurance Policy</label>
+                            <input type="file" id="insuranceDoc" required accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Submit Document</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 6: Operating Region -->
+            <div class="step-card" id="step6Card">
+                <div class="step-title">
+                    <span>6. Operating Region</span>
+                    <span class="status-badge" id="step6Status">Pending</span>
+                </div>
+                <div class="step-content">
+                    <form id="step6Form">
+                        <div class="input-group">
+                            <label>Select City / Zone</label>
+                            <select id="opRegion" required
+                                style="width: 100%; padding: 10px; background:#111; color:#fff; border: 1px solid #333; border-radius: 8px;">
+                                <option value="">Select a region...</option>
+                                <option value="New Delhi">New Delhi</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Bengaluru">Bengaluru</option>
+                                <option value="Lucknow">Lucknow</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Finish
+                            Application</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="completionMessage"
+                style="display:none; text-align:center; margin-top: 2rem; background: #111; padding: 2rem; border-radius: 1rem; border: 1px solid #333;">
+                <h2 style="color: var(--success-color);">Application Submitted!</h2>
+                <p style="color: #a0a0a0; margin: 1rem 0;">Our team will review your documents shortly.</p>
+                <!-- For the sake of this implementation, we allow them to proceed directly to dashboard if completedSteps === 6 -->
+                <button onclick="window.location.href='/driver-dashboard.html'" class="btn btn-primary">Go to Dashboard
+                    (Simulation)</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="driver-onboarding.js"></script>
+</body>
+
+</html>

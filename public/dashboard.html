@@ -4,39 +4,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>ViceRide Account</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-white);
+            color: var(--primary-black);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dashboard Header */
+        .dash-header {
+            background-color: var(--primary-black);
+            padding: 1rem 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dash-logo {
+            color: var(--primary-white);
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Layout Grid */
+        .dash-layout {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            border-right: 1px solid #EAEAEA;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-item {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            color: var(--primary-black);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.2s;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--light-gray);
+            border-left: 4px solid var(--primary-black);
+            font-weight: 600;
+        }
+
+        .sidebar-item-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 3rem 5rem;
+            background-color: var(--primary-white);
+        }
+
+        .top-search-bar {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 4rem auto;
+            position: relative;
+        }
+
+        .top-search-bar input {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3.5rem;
+            border-radius: 9999px;
+            border: 1px solid #EAEAEA;
+            background-color: var(--light-gray);
+            font-size: 1.1rem;
+            outline: none;
+            transition: background 0.2s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .top-search-bar input:focus {
+            background-color: var(--primary-white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: transparent;
+        }
+
+        .top-search-bar .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #545454;
+            font-size: 1.2rem;
+        }
+
+        /* Profile Banner */
+        .profile-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary-black);
+            color: var(--primary-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        /* Quick Action Grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .action-card {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s;
+            min-height: 140px;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .action-card .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .action-card p {
+            font-size: 0.9rem;
+            color: #545454;
+            margin: 0;
+        }
+
+        /* Suggestion Area */
+        .suggestion-area {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .suggestion-box {
+            border: 1px solid #EAEAEA;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .suggestion-box-left h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .suggestion-box-left p {
+            font-size: 0.9rem;
+            color: #545454;
+            margin: 0;
+        }
+    </style>
 </head>
 
-<body class="dashboard-bg">
-    <div class="dashboard-container">
-        <header class="dashboard-header card"
-            style="background: rgba(244, 234, 225, 0.85); backdrop-filter: blur(10px);">
-            <img src="logo.png" alt="The Pantheon" class="nav-logo">
-            <h1 id="welcomeHeader">Loading...</h1>
-            <h2 style="margin-top: 10px; font-weight: 500;">welcome to THE PANTHEON</h2>
-            <button id="logoutBtn" class="btn btn-outline" style="margin-top: 1rem;">Logout</button>
-        </header>
-        <main class="dashboard-main">
-            <div class="card dashboard-card" style="background: rgba(244, 234, 225, 0.9); backdrop-filter: blur(5px);">
-                <h2>Your Information</h2>
-                <div class="info-group">
-                    <p><strong>Name:</strong> <span id="infoName"></span></p>
-                    <p><strong>Email:</strong> <span id="infoEmail"></span></p>
+<body>
+    <span class="hidden-text" aria-hidden="true" style="display:none;">UDAIY</span>
+
+    <!-- Header -->
+    <header class="dash-header">
+        <a href="index.html" class="dash-logo">
+            <span>ViceRide Account</span>
+        </a>
+        <button id="logoutBtn"
+            style="background: none; border: none; color: white; cursor: pointer; font-size: 0.9rem; font-family: 'Inter', sans-serif;">Sign
+            out</button>
+    </header>
+
+    <div class="dash-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <a href="#" class="sidebar-item active">
+                <span class="sidebar-item-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">👤</span>
+                <span>Personal info</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">🔒</span>
+                <span>Security</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">🛡️</span>
+                <span>Privacy & Data</span>
+            </a>
+            <a href="index.html" class="sidebar-item"
+                style="margin-top: auto; border-top: 1px solid #EAEAEA; padding-top: 2rem;">
+                <span class="sidebar-item-icon">⬅️</span>
+                <span>Back to Ride</span>
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Ask me anything about your ViceRide account...">
+            </div>
+
+            <div class="profile-banner">
+                <div class="profile-avatar">👤</div>
+                <h1 class="profile-name" id="displayUsername">udaiy</h1>
+            </div>
+
+            <div class="actions-grid">
+                <div class="action-card">
+                    <span class="icon">👤</span>
+                    <h3>Personal info</h3>
+                    <p>Manage your details and contact preferences</p>
+                </div>
+                <div class="action-card">
+                    <span class="icon">🔒</span>
+                    <h3>Security</h3>
+                    <p>Control your password and 2-step verification</p>
+                </div>
+                <div class="action-card">
+                    <span class="icon">🛡️</span>
+                    <h3>Privacy & Data</h3>
+                    <p>Manage your privacy settings and data</p>
+                </div>
+            </div>
+
+            <div class="suggestion-area">
+                <div class="suggestion-box">
+                    <div class="suggestion-box-left">
+                        <h3>Complete your account checkup</h3>
+                        <p>Take a minute to review your account details</p>
+                    </div>
+                    <button class="btn-secondary rounded-full">Review</button>
+                </div>
+
+                <!-- Display API info mapping for compatibility with main.js script if needed -->
+                <div class="suggestion-box" style="margin-top: 2rem; border: none; padding: 0;">
+                    <button class="btn-outline rounded-full"
+                        style="width: 100%; border: 1px solid #EAEAEA; padding: 1rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s;"
+                        onclick="alert('Viewing History (This would trigger main.js logic)')">View Ride History</button>
                 </div>
             </div>
         </main>
-        <!-- hidden text -->
-        <span class="hidden-text" aria-hidden="true" style="display:none;">UDAIY</span>
     </div>
+
     <script src="main.js"></script>
     <script>
         // Check if token exists, if not redirect to login
         if (!localStorage.getItem('token')) {
             window.location.href = '/login.html';
+        } else {
+            // Fetch user info to populate username
+            fetch('/api/user/info', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            })
+                .then(res => res.json())
+                .then(user => {
+                    if (user && user.name) {
+                        document.getElementById('displayUsername').textContent = user.name;
+                    }
+                })
+                .catch(err => console.error(err));
         }
-        document.addEventListener('DOMContentLoaded', fetchDashboardData);
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        });
     </script>
 </body>
 

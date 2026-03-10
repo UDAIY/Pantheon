@@ -1,13 +1,22 @@
 :root {
-    --bg-color: #3a110f;
-    --card-bg: #F4EAE1;
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --primary-color: #3a110f;
-    --primary-hover: #541915;
-    --border-color: #e5e7eb;
-    --error-color: #ef4444;
-    --success-color: #10b981;
+    /* Main Theme Variables */
+    --bg-color: #ffffff;
+    --card-bg: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #545454;
+    --primary-color: #000000;
+    --primary-hover: #333333;
+    --border-color: #e5e5e5;
+
+    /* Strict Status Colors */
+    --error-color: #d93025;
+    --success-color: #1e8e3e;
+
+    /* Uber Clone Variables */
+    --primary-black: #000000;
+    --primary-white: #ffffff;
+    --light-gray: #f6f6f6;
+    --text-gray: #545454;
 }
 
 * {
@@ -72,6 +81,8 @@ body {
 .input-group input {
     width: 100%;
     padding: 0.75rem 1rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
     font-size: 1rem;
@@ -82,14 +93,14 @@ body {
 
 .input-group input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .btn {
     width: 100%;
     padding: 0.75rem 1rem;
     background-color: var(--primary-color);
-    color: white;
+    color: #ffffff;
     border: none;
     border-radius: 0.5rem;
     font-size: 1rem;
@@ -112,7 +123,7 @@ body {
 
 .btn-outline:hover {
     background-color: var(--primary-color);
-    color: white;
+    color: #ffffff;
 }
 
 .switch-form {
@@ -206,64 +217,398 @@ body {
 .landing-body {
     margin: 0;
     padding: 0;
-    background-image: url('second.jpg');
-    background-size: cover;
-    background-position: center;
+    /* Solid off-white background */
+    background-color: #f9faf4;
+    background-image: url('vice ride.png');
+    background-size: 100% auto;
+    /* scale width to 100% of window, adjust height proportionately */
+    background-position: center 8.7vh;
+    /* push down exactly the height of the navbar */
     background-repeat: no-repeat;
-    background-attachment: fixed;
     height: 100vh;
     display: block;
 }
 
 .landing-header {
-    background-color: #F4EAE1;
+    background-color: #000000;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 3rem;
+    padding: 0 3rem;
+    height: 8.7vh;
+    max-height: 8.7vh;
+    overflow: hidden;
     position: relative;
 }
 
 .landing-logo {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 2rem;
-    color: #210a08;
+    font-size: 1.5rem;
+    color: #ffffff;
     margin: 0;
-    text-transform: uppercase;
     letter-spacing: 1px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.landing-login-btn {
-    font-family: 'Inter', sans-serif;
-    font-weight: 900;
-    font-size: 1.25rem;
-    color: #F4EAE1;
-    text-decoration: none;
-    text-transform: lowercase;
-    transition: all 0.3s ease;
+.landing-auth-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
 
-    /* Glossy effect with red scheme */
-    background: linear-gradient(135deg, #541915 0%, #3a110f 100%);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 2rem;
+.landing-btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    /* Reduced font size for buttons to fit well inside 80px */
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 0.4rem 1.25rem;
+    /* Reduced padding on buttons */
     border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 2px 2px rgba(255, 255, 255, 0.2);
+}
+
+.landing-login-btn {
+    color: #ffffff;
+    background: transparent;
+    border: 1px solid #ffffff;
 }
 
 .landing-login-btn:hover {
-    color: #ffffff;
-    background: linear-gradient(135deg, #6c221d 0%, #4a1714 100%);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.landing-signup-btn {
+    color: #000000;
+    background: #ffffff;
+    border: 1px solid #ffffff;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.landing-signup-btn:hover {
+    background: #e0e0e0;
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
 }
 
 .dashboard-bg {
-    background-image: url('second.jpg');
-    background-size: cover;
-    background-position: center;
+    background-color: #f9faf4;
+}
+
+/* Car Hotspot Button */
+.car-hotspot {
+    position: absolute;
+    /* 
+      Approximate positioning based on the image:
+      X axis: ~49% of width 
+      Y axis: NavBar Height (8.7vh) + ~48% of the image's scalable height (which is based on width, so we use vw for Y to keep ratio)
+    */
+    left: calc(49.2vw + 2.5px);
+    top: calc(8.7vh + 27.5vw + 10.5px);
+
+    width: 3.5vw;
+    /* Scale button size with screen to match dot */
+    height: 3.5vw;
+    min-width: 35px;
+    min-height: 35px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 2px solid #000;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    /* Center the point */
+
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+
+    /* Subtle pulsing effect to indicate it's clickable */
+    animation: pulse-dot 2s infinite;
+}
+
+.car-hotspot:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+@keyframes pulse-dot {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+}
+
+/* Role Tabs Styling */
+.role-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+    background-color: transparent;
+}
+
+.role-tab {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.role-tab:hover {
+    color: var(--text-primary);
+}
+
+.role-tab.active {
+    border-bottom-color: #007bff;
+    color: #007bff;
+    font-weight: 600;
+}
+
+/* Select Element Styling */
+.input-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-position: right 1rem center;
+    background-size: 1.25em;
+    padding-right: 2.5rem;
+}
+
+.input-group select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.input-group select option {
+    background-color: #222222;
+    color: var(--text-primary);
+    padding: 0.5rem;
+}
+
+/* Driver Fields Section */
+#driverFields {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+/* --- Uber UI Utility Classes --- */
+.rounded-xl {
+    border-radius: 0.75rem;
+}
+
+.rounded-2xl {
+    border-radius: 1rem;
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+.btn-primary {
+    background-color: var(--primary-black);
+    color: var(--primary-white);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-family: inherit;
+}
+
+.btn-primary:hover {
+    opacity: 0.8;
+}
+
+.btn-secondary {
+    background-color: var(--light-gray);
+    color: var(--primary-black);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: inherit;
+}
+
+.btn-secondary:hover {
+    background-color: #E2E2E2;
+}
+
+.heading-bold {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* --- Ride Tracking Animations & UI --- */
+
+/* Bottom Sheet */
+.bottom-sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem 2rem 2.5rem 2rem;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bottom-sheet.open {
+    transform: translateY(0);
+}
+
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    margin: 0 auto 1.5rem auto;
+}
+
+/* Radar Pulse Marker */
+.radar-marker {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #000;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.radar-marker::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 2px solid #000;
+    border-radius: 50%;
+    animation: radar-pulse 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes radar-pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+/* Jittery surrounding cars to simulate live map */
+.sim-car {
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    animation: car-jitter 3s ease-in-out infinite alternate;
+}
+
+@keyframes car-jitter {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(5px, -5px) rotate(15deg);
+    }
+}
+
+/* Smooth car marker for assigned driver */
+.driver-marker {
+    width: 38px;
+    height: 38px;
+    background: #000;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s linear;
+}
+
+/* Loading Spinner (Searching State) */
+.search-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem auto;
+}
+
+/* Call Button inside Driver Card */
+.btn-call {
+    background: #f0f0f0;
+    color: #000;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 18px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-call:hover {
+    background: #e0e0e0;
 }

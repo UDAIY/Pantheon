@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courier — ViceRide</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .book-nav {
+            background: #fff;
+            padding: 0 3rem;
+            height: 8.7vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .book-nav h1 {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #000;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+        }
+
+        .center-tabs {
+            display: flex;
+            gap: 2rem;
+            height: 100%;
+        }
+
+        .center-tab {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            gap: 0.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #555;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            padding: 0 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .center-tab.active {
+            color: #000;
+            border-bottom-color: #000;
+        }
+
+        .book-nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .activity-pill {
+            background: #f3f3f3;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #000;
+        }
+
+        .profile-bubble {
+            width: 35px;
+            height: 35px;
+            background: #e5e5e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #555;
+            font-size: 1.2rem;
+        }
+
+        .book-content {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Float Left Panel */
+        .book-left {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 400px;
+            height: calc(100vh - 8.7vh - 2rem);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        /* Map Backing */
+        .book-right {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 8.7vh);
+            z-index: 10;
+        }
+
+        #parcelMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Courier Search UI */
+        .courier-banner {
+            width: 100%;
+            height: 160px;
+            background: url('second.jpg') center/cover;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .book-left-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .courier-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            color: #000;
+            letter-spacing: -1px;
+        }
+
+        .courier-desc {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .segment-control {
+            display: flex;
+            background: #eee;
+            border-radius: 8px;
+            padding: 0.3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .segment-btn {
+            flex: 1;
+            padding: 0.8rem 0;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #000;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .segment-btn.active {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: #f6f6f6 !important;
+            color: #000 !important;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            background: #eee !important;
+            border-color: #000;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: transparent;
+            border: 3px solid #000;
+            border-radius: 50%;
+        }
+
+        .input-square {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: #000;
+        }
+
+        .search-action-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #eee;
+            color: #999;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: not-allowed;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+
+        .search-action-btn.active {
+            background: #000;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        /* Autocomplete List Override */
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 500;
+        }
+
+        .autocomplete-item {
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .autocomplete-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* State 2 UI  */
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-icon {
+            font-size: 1.2rem;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 0.95rem;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #000;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .trip-stats {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .fare-box {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .fare-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #000;
+        }
+
+        .fare-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+
+        .confirm-btn:hover {
+            background: #222;
+        }
+
+        .confirm-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .confirm-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .success-overlay.show {
+            display: flex;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+        }
+
+        .success-text {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .success-sub {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .back-search-btn {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            text-align: left;
+            padding: 0;
+        }
+
+        .page-loader {
+            position: fixed;
+            top: 8.7vh;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 8.7vh);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eee;
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden-text {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading courier interface...</div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="book-nav">
+        <h1 onclick="window.location.href='index.html'">ViceRide</h1>
+
+        <div class="center-tabs">
+            <a href="book.html" class="center-tab" style="text-decoration: none;"><span>🚗</span> Ride</a>
+            <a href="rental-book.html" class="center-tab" style="text-decoration: none;"><span>📅</span> Rentals</a>
+            <a href="parcel-book.html" class="center-tab active" style="text-decoration: none;"><span>📦</span>
+                Parcel</a>
+        </div>
+
+        <div class="book-nav-right">
+            <div class="activity-pill" onclick="window.location.href='dashboard.html'"><span>📋</span> Activity</div>
+            <div class="profile-bubble" id="profileBubble" onclick="window.location.href='dashboard.html'">👤</div>
+        </div>
+    </nav>
+
+    <!-- Content Engine -->
+    <div class="book-content">
+        <!-- Floating Left Panel -->
+        <div class="book-left">
+
+            <!-- STATE 1: Search -->
+            <div id="searchState">
+                <div class="courier-banner"></div>
+
+                <div class="book-left-content">
+                    <h2 class="courier-title">Courier</h2>
+                    <p class="courier-desc">Have a courier deliver something for you. Get packages delivered in the time
+                        it takes to drive there.</p>
+
+                    <div class="segment-control">
+                        <button class="segment-btn active">Send</button>
+                        <button class="segment-btn">Receive</button>
+                        <button class="segment-btn">Store Pickup</button>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-icon"></div>
+                        <input type="text" class="input-field" id="panelPickup" placeholder="Pickup location"
+                            autocomplete="off">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-square"></div>
+                        <input type="text" class="input-field" id="panelDropoff" placeholder="Dropoff location"
+                            autocomplete="off">
+                    </div>
+
+                    <button class="search-action-btn" id="runSearchBtn" disabled>Search</button>
+                </div>
+            </div>
+
+            <!-- STATE 2: Select Vehicle / Confirm (Hidden initially) -->
+            <div id="vehicleState" style="display: none;">
+                <div class="book-left-content">
+                    <button class="back-search-btn" id="backToSearchBtn">← Back to Courier</button>
+
+                    <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 1rem; color: #000;">Confirm Parcel
+                        Delivery</h2>
+
+                    <div class="section-label">Route</div>
+                    <div class="detail-row">
+                        <div class="detail-icon">📍</div>
+                        <div>
+                            <div class="detail-label">Sender Pickup</div>
+                            <div class="detail-value" id="pickupAddress">—</div>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-icon">📦</div>
+                        <div>
+                            <div class="detail-label">Receiver Dropoff</div>
+                            <div class="detail-value" id="dropoffAddress">—</div>
+                        </div>
+                    </div>
+
+                    <div class="trip-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="tripDistance">—</div>
+                            <div class="stat-label">Distance</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="tripDuration">—</div>
+                            <div class="stat-label">Est. Time</div>
+                        </div>
+                    </div>
+
+                    <div class="section-label">Receiver Details</div>
+                    <div class="detail-row">
+                        <div class="detail-icon">👤</div>
+                        <div>
+                            <div class="detail-label">Receiver</div>
+                            <div class="detail-value" id="receiverName">—</div>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-icon">📱</div>
+                        <div>
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value" id="receiverPhone">—</div>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-icon">📝</div>
+                        <div>
+                            <div class="detail-label">Instructions</div>
+                            <div class="detail-value" id="instructionsDisplay">—</div>
+                        </div>
+                    </div>
+
+                    <div class="section-label">Package</div>
+                    <div class="detail-row">
+                        <div class="detail-icon" id="sizeIcon">📦</div>
+                        <div>
+                            <div class="detail-label">Size & Vehicle</div>
+                            <div class="detail-value" id="sizeDisplay">—</div>
+                        </div>
+                    </div>
+
+                    <div class="fare-box">
+                        <div class="fare-label">Delivery Fee</div>
+                        <div class="fare-amount" id="fareDisplay">—</div>
+                    </div>
+
+                    <button class="confirm-btn" id="confirmBtn">Confirm Delivery</button>
+                    <p class="error-msg" id="errorMsg"></p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Absolute Backing Map -->
+        <div class="book-right">
+            <div id="parcelMap"></div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-icon">✅</div>
+        <div class="success-text">Parcel Delivery Confirmed!</div>
+        <div class="success-sub">A driver has been assigned for pickup. Redirecting...</div>
+    </div>
+
+    <span class="hidden-text" aria-hidden="true">UDAIY</span>
+
+    <script src="parcel-book.js"></script>
+</body>
+
+</html>

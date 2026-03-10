@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Ride — ViceRide</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .book-nav {
+            background: #fff;
+            padding: 0 3rem;
+            height: 8.7vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .book-nav h1 {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #000;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+        }
+
+        .center-tabs {
+            display: flex;
+            gap: 2rem;
+            height: 100%;
+        }
+
+        .center-tab {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            gap: 0.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #555;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            padding: 0 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .center-tab.active {
+            color: #000;
+            border-bottom-color: #000;
+        }
+
+        .book-nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .activity-pill {
+            background: #f3f3f3;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #000;
+        }
+
+        .profile-bubble {
+            width: 35px;
+            height: 35px;
+            background: #e5e5e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #555;
+            font-size: 1.2rem;
+        }
+
+        .book-content {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Float Left Panel */
+        .book-left {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 380px;
+            height: calc(100vh - 8.7vh - 2rem);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            padding: 1.5rem;
+        }
+
+        /* Map Backing */
+        .book-right {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 8.7vh);
+            z-index: 10;
+        }
+
+        #bookMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Search UI State */
+        .search-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .promo-badge {
+            background: #e8f5e9;
+            color: #1b5e20;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            background: #ffffff !important;
+            color: #000 !important;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            background: #eee !important;
+            border-color: #000;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        .input-square {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #000;
+        }
+
+        .search-action-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+
+        .search-action-btn:hover {
+            background: #222;
+        }
+
+        /* Autocomplete List Override */
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 500;
+        }
+
+        .autocomplete-item {
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .autocomplete-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* Vehicle List Override */
+        .route-summary {
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .route-summary h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-dot {
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        .route-address {
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .trip-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .trip-stat-value {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .trip-stat-label {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .vehicle-section h3 {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .vehicle-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.8rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .vehicle-card:hover {
+            background: #fafafa;
+        }
+
+        .vehicle-card.selected {
+            border-color: #000;
+            background: #f5f5f5;
+        }
+
+        .vehicle-icon {
+            font-size: 1.5rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .vehicle-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .vehicle-desc {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .vehicle-fare {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .confirm-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-search-btn {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            text-align: left;
+            padding: 0;
+        }
+
+        /* Loading Overlay (Desktop Fullscreen Override) */
+        .page-loader {
+            position: fixed;
+            top: 8.7vh;
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 8.7vh);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eee;
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eee;
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* hidden text */
+        .hidden-text {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Finding the best route...</div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="book-nav">
+        <h1 onclick="window.location.href='index.html'">ViceRide</h1>
+
+        <div class="center-tabs">
+            <a href="book.html" class="center-tab active" style="text-decoration: none;"><span>🚗</span> Ride</a>
+            <a href="rental-book.html" class="center-tab" style="text-decoration: none;"><span>📅</span> Rentals</a>
+            <a href="parcel-book.html" class="center-tab" style="text-decoration: none;"><span>📦</span> Parcel</a>
+        </div>
+
+        <div class="book-nav-right">
+            <div class="activity-pill"><span>📋</span> Activity</div>
+            <div class="profile-bubble" id="profileBubble">👤</div>
+        </div>
+    </nav>
+
+    <!-- Content Engine -->
+    <div class="book-content">
+        <!-- Floating Left Panel -->
+        <div class="book-left">
+
+            <!-- STATE 1: Search -->
+            <div id="searchState">
+                <h2 class="search-title">Get a ride</h2>
+
+                <div class="input-group">
+                    <input type="text" class="input-field" id="panelPickup" placeholder="Pickup location"
+                        autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <input type="text" class="input-field" id="panelDropoff" placeholder="Dropoff location"
+                        autocomplete="off">
+                </div>
+
+                <button class="search-action-btn" id="runSearchBtn">Search</button>
+            </div>
+
+            <!-- STATE 2: Select Vehicle (Hidden initially) -->
+            <div id="vehicleState" style="display: none;">
+                <button class="back-search-btn" id="backToSearchBtn">← Back to search</button>
+
+                <div class="route-summary">
+                    <h2>Confirm Route</h2>
+                    <div class="route-point">
+                        <div class="route-dot"></div>
+                        <div class="route-address" id="pickupAddress">—</div>
+                    </div>
+                    <div class="route-point">
+                        <div class="route-dot" style="border-radius: 0;"></div>
+                        <div class="route-address" id="dropoffAddress">—</div>
+                    </div>
+                </div>
+
+                <div class="trip-stats">
+                    <div>
+                        <div class="trip-stat-value" id="tripDistance">—</div>
+                        <div class="trip-stat-label">Distance</div>
+                    </div>
+                    <div>
+                        <div class="trip-stat-value" id="tripDuration">—</div>
+                        <div class="trip-stat-label">Est. Time</div>
+                    </div>
+                </div>
+
+                <div class="vehicle-section">
+                    <h3>Select Vehicle</h3>
+                    <div id="vehicleList"></div>
+                </div>
+
+                <button class="confirm-btn" id="confirmBtn" disabled>Select a vehicle</button>
+                <p class="error-msg" id="errorMsg"></p>
+            </div>
+
+        </div>
+
+        <!-- Absolute Backing Map -->
+        <div class="book-right">
+            <div id="bookMap"></div>
+        </div>
+    </div>
+
+    <span class="hidden-text" aria-hidden="true">UDAIY</span>
+
+    <script src="book.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard - ViceRide Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --cyber-bg: #0D0E15;
+            --cyber-cyan: #00f3ff;
+            --cyber-magenta: #ff00ea;
+            --cyber-green: #00ff66;
+            --glass-bg: rgba(13, 14, 21, 0.75);
+            --glass-border: rgba(0, 243, 255, 0.3);
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-family: 'Rajdhani', 'Orbitron', 'Inter', sans-serif;
+            background-color: var(--cyber-bg);
+            color: #fff;
+        }
+
+        /* Map Container */
+        #driverMap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            background: var(--cyber-bg);
+        }
+
+        /* Cyberpunk Glass Sidebar */
+        .cyber-sidebar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            bottom: 20px;
+            width: 340px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            padding: 24px;
+        }
+
+        /* Header */
+        .cyber-header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .cyber-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+            color: var(--cyber-cyan);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pro-tag {
+            color: var(--cyber-magenta);
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(255, 0, 234, 0.6);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .status-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+            transition: all 0.4s ease;
+        }
+
+        .status-pulse.online {
+            background: var(--cyber-green);
+            box-shadow: 0 0 12px var(--cyber-green);
+        }
+
+        /* Main Controls */
+        .cyber-controls {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .control-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+
+        /* Biometric/Mechanical Slider */
+        .cyber-switch {
+            position: relative;
+            display: inline-block;
+            width: 70px;
+            height: 36px;
+        }
+
+        .cyber-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .cyber-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1a1a24;
+            transition: .4s;
+            border-radius: 36px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+        }
+
+        .cyber-slider:before {
+            position: absolute;
+            content: "⏻";
+            height: 26px;
+            width: 26px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        input:checked+.cyber-slider {
+            border-color: var(--cyber-green);
+            box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.2);
+        }
+
+        input:checked+.cyber-slider:before {
+            transform: translateX(33px);
+            background-color: var(--cyber-green);
+            color: #000;
+            box-shadow: 0 0 15px var(--cyber-green);
+        }
+
+        /* Telemetry Data Panel */
+        .telemetry-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .telemetry-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .telemetry-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--cyber-cyan);
+        }
+
+        .t-label {
+            font-size: 0.75rem;
+            color: #666;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .t-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Radar Widget */
+        .radar-box {
+            margin-top: 10px;
+            height: 120px;
+            background: rgba(0, 255, 102, 0.05);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            border-radius: 50%;
+            width: 120px;
+            align-self: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0, 255, 102, 0.1);
+        }
+
+        .radar-box span {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.75rem;
+            color: var(--cyber-green);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            top: 0;
+            right: 0;
+            background: linear-gradient(45deg, rgba(0, 255, 102, 0) 0%, rgba(0, 255, 102, 0.5) 100%);
+            transform-origin: bottom left;
+            border-right: 2px solid var(--cyber-green);
+            animation: sweep 4s infinite linear;
+            border-radius: 0 100% 0 0;
+        }
+
+        @keyframes sweep {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Footer */
+        .cyber-footer {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .cyber-btn-logout {
+            width: 100%;
+            background: #1a0505;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .cyber-btn-logout:hover {
+            background: #ef4444;
+            color: #000;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Incoming Request Modal (Cyberpunk Edition) */
+        .request-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 14, 21, 0.85);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .request-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .request-card {
+            background: rgba(10, 10, 15, 0.95);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--cyber-cyan);
+            border-radius: 0;
+            padding: 30px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            position: relative;
+        }
+
+        /* Techy corners */
+        .request-card::before,
+        .request-card::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+
+        .request-card::before {
+            top: 0;
+            left: 0;
+            border-top: 3px solid var(--cyber-cyan);
+            border-left: 3px solid var(--cyber-cyan);
+        }
+
+        .request-card::after {
+            bottom: 0;
+            right: 0;
+            border-bottom: 3px solid var(--cyber-cyan);
+            border-right: 3px solid var(--cyber-cyan);
+        }
+
+        .request-modal-overlay.active .request-card {
+            transform: scale(1);
+        }
+
+        .req-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .req-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .req-fare {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--cyber-green);
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+        }
+
+        .req-route {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .req-route::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 14px;
+            bottom: 14px;
+            width: 2px;
+            background: rgba(0, 243, 255, 0.3);
+            z-index: 1;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 2px solid var(--cyber-cyan);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .dot.dropoff {
+            border-color: var(--cyber-magenta);
+            box-shadow: 0 0 10px rgba(255, 0, 234, 0.5);
+        }
+
+        .point-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .point-text span {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--cyber-cyan);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .route-point:last-child .point-text span {
+            color: var(--cyber-magenta);
+        }
+
+        .point-text small {
+            font-size: 0.95rem;
+            color: #ddd;
+            margin-top: 4px;
+            font-family: monospace;
+        }
+
+        .req-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn-accept {
+            flex: 2;
+            background: rgba(0, 255, 102, 0.1);
+            color: var(--cyber-green);
+            border: 1px solid var(--cyber-green);
+            padding: 15px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 2px;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        }
+
+        .btn-accept:hover {
+            background: var(--cyber-green);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.6);
+        }
+
+        .btn-decline {
+            flex: 1;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .btn-decline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: #fff;
+        }
+
+        /* Pulse Animation for driver marker */
+        .holo-marker {
+            width: 20px;
+            height: 20px;
+            background: var(--cyber-cyan);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px var(--cyber-cyan);
+            position: relative;
+        }
+
+        .holo-marker::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            border: 2px solid var(--cyber-cyan);
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes ping {
+
+            75%,
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    </style>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Map Container -->
+    <div id="driverMap"></div>
+
+    <!-- Cyberpunk Sidebar -->
+    <div class="cyber-sidebar">
+        <div class="cyber-header">
+            <h1 class="cyber-logo">ViceRide <span class="pro-tag">PRO</span></h1>
+            <div class="status-indicator">
+                <div class="status-pulse" id="statusDot"></div>
+                <span id="statusLabel">SYSTEM OFFLINE</span>
+            </div>
+        </div>
+
+        <div class="cyber-controls">
+            <label class="cyber-switch">
+                <input type="checkbox" id="onlineToggle">
+                <div class="cyber-slider"></div>
+            </label>
+            <div class="control-label" id="uplinkText">UPLINK CONNECT</div>
+        </div>
+
+        <div class="telemetry-panel">
+            <div class="telemetry-box">
+                <span class="t-label">GRID COORDS</span>
+                <span class="t-value" id="gridCoords">--.----, --.----</span>
+            </div>
+            <div class="telemetry-box">
+                <span class="t-label">SERVER LATENCY</span>
+                <span class="t-value" id="pingValue">-- ms <span style="color:#ef4444">●</span></span>
+            </div>
+
+            <div class="radar-box">
+                <div class="radar-sweep"></div>
+                <span>SEARCHING AREA...</span>
+            </div>
+        </div>
+
+        <div class="cyber-footer">
+            <button class="cyber-btn-logout" id="logoutBtn">
+                <span class="warning-icon">⚠</span> TERMINATE
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Incoming Request Modal (Cyberpunk Edition) -->
+    <div class="request-modal-overlay" id="requestOverlay">
+        <div class="request-card">
+            <div class="req-header">
+                <h3 class="req-title">INCOMING TRACE</h3>
+                <span class="req-fare" id="reqFare">₹0</span>
+            </div>
+
+            <div class="req-route">
+                <div class="route-point">
+                    <div class="dot pickup"></div>
+                    <div class="point-text">
+                        <span>EXTRACTION POINT</span>
+                        <small id="reqPickupText">Loading address...</small>
+                    </div>
+                </div>
+                <div class="route-point">
+                    <div class="dot dropoff"></div>
+                    <div class="point-text">
+                        <span>DROP VECTOR</span>
+                        <small id="reqDropoffText">Loading address...</small>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="display:flex; justify-content:space-between; margin-bottom:1.5rem; color:#aaa; font-size:1rem; font-family: monospace;">
+                <span>RANGE: <strong id="reqDistance" style="color:var(--cyber-cyan)">0 km</strong></span>
+                <span>TIME: <strong id="reqDuration" style="color:var(--cyber-cyan)">0 min</strong></span>
+            </div>
+
+            <div class="req-actions">
+                <button class="btn-decline" id="declineBtn">IGNORE</button>
+                <button class="btn-accept" id="acceptBtn">INITIALIZE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="driver-dashboard.js"></script>
+</body>
+
+</html>

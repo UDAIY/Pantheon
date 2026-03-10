@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const DriverProfile = require('../models/DriverProfile');
 const authMiddleware = require('../middleware/authMiddleware');
 const sendEmail = require('../utils/sendEmail');
 
@@ -11,7 +12,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
 // Register Route
 router.post('/auth/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role, phone } = req.body;
+
+        // Validate role
+        const validRoles = ['user', 'driver'];
+        const userRole = validRoles.includes(role) ? role : 'user';
 
         // Check if user exists
         const existingUser = await User.findOne({ email });
@@ -24,7 +29,9 @@ router.post('/auth/register', async (req, res) => {
         const newUser = new User({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: userRole,
+            phone: phone || undefined
         });
 
         // Generate 6-digit OTP
@@ -37,8 +44,14 @@ router.post('/auth/register', async (req, res) => {
 
         await newUser.save();
 
+        // If driver, create empty DriverProfile
+        if (userRole === 'driver') {
+            const profile = new DriverProfile({ userId: newUser._id });
+            await profile.save();
+        }
+
         console.log(`\n=== TEST MODE OTP ===`);
-        console.log(`OTP for ${email}: ${otp}`);
+        console.log(`OTP for ${email}: ${otp} (role: ${userRole})`);
         console.log(`=======================\n`);
 
         // Send OTP email
@@ -75,10 +88,21 @@ router.post('/auth/login', async (req, res) => {
             return res.status(400).json({ message: 'Please verify your email address before logging in' });
         }
 
-        // Generate Token
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+        // Generate Token (include role)
+        const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
 
-        res.json({ token, user: { name: user.name, email: user.email } });
+        // If driver, check onboarding status
+        let onboardingComplete = true;
+        if (user.role === 'driver') {
+            const profile = await DriverProfile.findOne({ userId: user._id });
+            onboardingComplete = profile ? profile.overallStatus === 'approved' : false;
+        }
+
+        res.json({
+            token,
+            user: { name: user.name, email: user.email, role: user.role },
+            onboardingComplete
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -90,7 +114,17 @@ router.get('/user/info', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.userId).select('-password');
         if (!user) return res.status(404).json({ message: 'User not found' });
-        res.json(user);
+
+        const userData = user.toObject();
+
+        // If driver, include onboarding status
+        if (user.role === 'driver') {
+            const profile = await DriverProfile.findOne({ userId: user._id });
+            userData.onboardingComplete = profile ? profile.overallStatus === 'approved' : false;
+            userData.completedSteps = profile ? profile.completedSteps : 0;
+        }
+
+        res.json(userData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
