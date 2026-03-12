@@ -159,21 +159,22 @@
 
         /* Glass Panel Cards */
         .glass-card {
-            background: rgba(30, 41, 59, 0.3);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 8px;
-            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.3) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(96, 165, 250, 0.15);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05);
         }
 
         .glass-card:hover {
-            background: rgba(30, 41, 59, 0.5);
-            border-color: rgba(96, 165, 250, 0.2);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.5) 100%);
+            border-color: rgba(96, 165, 250, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(96, 165, 250, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.08);
         }
 
         /* Status Badge */
@@ -282,27 +283,27 @@
         }
 
         .driver-avatar {
-            width: 56px;
-            height: 56px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 700;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .driver-row:hover .driver-avatar {
-            transform: scale(1.08) rotate(2deg);
+            transform: scale(1.12) rotate(-2deg);
             box-shadow: 
-                0 12px 30px rgba(102, 126, 234, 0.4),
-                inset 0 0 30px rgba(255, 255, 255, 0.3);
+                0 16px 40px rgba(102, 126, 234, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         .driver-details {
@@ -358,6 +359,11 @@
         /* Driver Dossier - Confirmed State */
         .driver-dossier-confirmed {
             position: relative;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
         }
 
         .dossier-title-confirmed {
@@ -378,18 +384,18 @@
         /* Green Checkmark Badge */
         .checkmark-badge {
             position: absolute;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.4);
             z-index: 10;
             animation: badge-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -407,13 +413,16 @@
 
         .driver-avatar-wrapper {
             position: relative;
-            display: inline-block;
-            margin-bottom: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 14px;
+            width: 100%;
         }
 
         .driver-avatar-wrapper .checkmark-badge {
-            top: -4px;
-            right: -4px;
+            top: -6px;
+            right: calc(50% - 42px);
         }
 
         /* Accepted Status Text */
@@ -436,89 +445,109 @@
         }
 
         .driver-info-block {
-            background: rgba(30, 41, 59, 0.3);
-            border: 1px solid rgba(96, 165, 250, 0.15);
-            border-radius: 8px;
-            padding: 10px;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(8px);
         }
 
         .driver-info-block:hover {
-            background: rgba(30, 41, 59, 0.7);
-            border-color: rgba(96, 165, 250, 0.4);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(59, 130, 246, 0.12) 100%);
+            border-color: rgba(96, 165, 250, 0.5);
+            box-shadow: 0 8px 24px rgba(96, 165, 250, 0.15);
+            transform: translateY(-2px);
         }
 
         .driver-info-header {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
         }
 
         .driver-name-confirmed {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #f1f5f9;
+            letter-spacing: 0.3px;
+            text-transform: capitalize;
         }
 
         .driver-vehicle-confirmed {
-            font-size: 0.7rem;
-            color: #cbd5e1;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .driver-rating-confirmed {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #fbbf24;
             font-weight: 700;
-            margin-top: 2px;
+            margin-top: 0;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            letter-spacing: 0.2px;
         }
 
         /* License Plate Display */
         .license-plate {
-            background: #f1f5f9;
-            color: #000;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 800;
-            font-size: 0.65rem;
-            letter-spacing: 1px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #1e293b;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
             text-align: center;
             font-family: 'Courier New', monospace;
-            border: 1px solid #e2e8f0;
-            margin-top: 4px;
+            border: 2px solid #cbd5e1;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            width: 100%;
         
 
         /* Action Buttons with Status Indicators */
         .button-action-group {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
         }
 
         /* Icon button style */
         .btn-action-icon {
             flex: 1;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 6px;
-            color: #fff;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            color: #60a5fa;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             font-size: 0.8rem;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            backdrop-filter: blur(4px);
         }
 
         .btn-action-icon:hover {
-            background: rgba(96, 165, 250, 0.3);
-            border-color: rgba(96, 165, 250, 0.6);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(96, 165, 250, 0.25);
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.25) 0%, rgba(59, 130, 246, 0.15) 100%);
+            border-color: rgba(96, 165, 250, 0.8);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(96, 165, 250, 0.3);
             color: #93c5fd;
-            animation: button-glow 0.3s ease-out;
         }
 
         .btn-action-icon:active {
@@ -540,57 +569,67 @@
         /* Active Status Indicator Dot */
         .active-indicator {
             position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #34d399;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
             border-radius: 50%;
             top: 8px;
             right: 8px;
-            box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+            box-shadow: 0 0 12px rgba(52, 211, 153, 1), inset 0 1px 0 rgba(255, 255, 255, 0.4);
             animation: indicator-pulse 2s ease-in-out infinite;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         @keyframes indicator-pulse {
             0%, 100% {
-                box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+                box-shadow: 0 0 12px rgba(52, 211, 153, 1);
             }
             50% {
-                box-shadow: 0 0 16px rgba(52, 211, 153, 1);
+                box-shadow: 0 0 20px rgba(52, 211, 153, 1.2);
             }
         }
 
         /* SOS Button */
         .btn-sos {
-            background: rgba(239, 68, 68, 0.1) !important;
-            border-color: rgba(239, 68, 68, 0.2) !important;
+            background: rgba(239, 68, 68, 0.12) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
             color: #ef4444 !important;
         }
 
         .btn-sos:hover {
-            background: rgba(239, 68, 68, 0.15) !important;
-            border-color: rgba(239, 68, 68, 0.4) !important;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1) !important;
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: rgba(239, 68, 68, 0.5) !important;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.2) !important;
         }
 
         /* Car Render Wrapper */
         .car-render-wrapper {
             position: relative;
             text-align: center;
-            margin-top: 8px;
+            margin-top: 12px;
+            margin-bottom: 12px;
         }
 
         .car-render-placeholder {
             width: 100%;
-            height: 80px;
-            background: rgba(30, 41, 59, 0.3);
-            border: 1px solid rgba(96, 165, 250, 0.15);
-            border-radius: 8px;
+            height: 90px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(59, 130, 246, 0.08) 100%);
+            border: 2px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #cbd5e1;
-            font-size: 2rem;
+            font-size: 2.5rem;
             position: relative;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(6px);
+        }
+        
+        .car-render-placeholder:hover {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(59, 130, 246, 0.12) 100%);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.12);
         }
 
         .car-render-wrapper .checkmark-badge {
@@ -600,45 +639,49 @@
 
         /* Divider */
         .dossier-divider {
-            width: 100%;
+            width: calc(100% + 32px);
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.2), transparent);
-            margin: 8px 0;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.25), transparent);
+            margin: 12px -16px;
         }
         .ride-info-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 6px;
-            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+            margin-top: 12px;
         }
 
         .ride-info-item {
-            flex: 1;
-            background: rgba(30, 41, 59, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 8px 4px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(3, 102, 214, 0.05) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.15);
+            border-radius: 10px;
+            padding: 12px 8px;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(6px);
         }
 
         .ride-info-item:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(96, 165, 250, 0.3);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(3, 102, 214, 0.15) 100%);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 6px 16px rgba(0, 212, 255, 0.1);
+            transform: translateY(-3px);
         }
 
         .ride-info-value {
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #00d4ff;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
+            letter-spacing: 0.2px;
         }
 
         .ride-info-label {
-            font-size: 0.6rem;
-            color: #999;
+            font-size: 0.65rem;
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
             font-weight: 600;
         }
 
@@ -646,59 +689,66 @@
         .share-pin-section {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px;
-            background: rgba(30, 41, 59, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
+            gap: 12px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(6px);
         }
 
         .share-pin-section:hover {
-            background: rgba(168, 85, 247, 0.12);
-            border-color: rgba(196, 181, 253, 0.3);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-color: rgba(196, 181, 253, 0.4);
+            box-shadow: 0 6px 16px rgba(168, 85, 247, 0.1);
+            transform: translateY(-2px);
         }
 
         .share-pin-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
-            color: #999;
+            color: #a78bfa;
             flex: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
         .pin-buttons {
             display: flex;
-            gap: 0.2rem;
+            gap: 6px;
             flex-wrap: nowrap;
+            justify-content: center;
+            flex: 1;
         }
 
         .pin-btn {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #00d4ff;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
             color: #000;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            font-size: 0.6rem;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            font-size: 0.65rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0, 212, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
         }
 
         .pin-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 212, 255, 0.4);
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            filter: brightness(1.1);
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+            background: linear-gradient(135deg, #00ffff 0%, #00d4ff 100%);
+            filter: brightness(1.15);
         }
 
         .pin-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
         /* Action Buttons */
