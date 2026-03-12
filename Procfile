@@ -1,1 +1,1 @@
-web: cd backend && npm install && node server.js
+worker: npm install && node server.js
