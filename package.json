@@ -1,0 +1,13 @@
+{
+  "name": "viceride-pantheon",
+  "version": "1.0.0",
+  "description": "ViceRide - Ride sharing platform",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && node server.js"
+  },
+  "keywords": ["ride", "sharing", "uber", "clone"],
+  "author": "",
+  "license": "ISC"
+}
