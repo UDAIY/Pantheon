@@ -106,12 +106,20 @@ router.post('/rides/:id/accept', authMiddleware, async (req, res) => {
             return res.status(400).json({ message: 'Ride has already been accepted or is no longer available.' });
         }
 
+        // Generate random 4-digit PIN
+        const verificationPin = Math.floor(1000 + Math.random() * 9000).toString();
+
         // Assign driver
         ride.status = 'driver-assigned';
         ride.driverId = driver._id;
+        ride.verificationPin = verificationPin;
+        ride.pinVerified = false;
         await ride.save();
 
-        // Mark driver as unavailable (could add to Driving state if desired, keeping simple for now)
+        // Populate driver info so the passenger has it!
+        await ride.populate('driverId');
+
+        // Mark driver as unavailable
         driver.isOnline = false; // Or just busy
         await driver.save();
 
@@ -121,6 +129,43 @@ router.post('/rides/:id/accept', authMiddleware, async (req, res) => {
         const io = req.app.get('io');
         if (io) {
             io.to(ride.userId.toString()).emit('ride_accepted', ride);
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Verify PIN and confirm ride
+router.post('/rides/:id/verify-pin', authMiddleware, async (req, res) => {
+    try {
+        const { pin } = req.body;
+        const ride = await Ride.findById(req.params.id);
+        
+        if (!ride) return res.status(404).json({ message: 'Ride not found' });
+        
+        // Ensure user is driver
+        const driver = await User.findById(req.userId);
+        if (!driver || driver.role !== 'driver' || ride.driverId.toString() !== req.userId) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+        
+        if (ride.verificationPin !== pin) {
+            return res.status(400).json({ message: 'Invalid PIN' });
+        }
+        
+        // PIN verified - update ride status to in-progress
+        ride.pinVerified = true;
+        ride.status = 'in-progress';
+        await ride.save();
+        await ride.populate('driverId');
+        
+        res.json({ message: 'PIN verified. Ride confirmed!', ride });
+        
+        // Notify passenger that ride is confirmed
+        const io = req.app.get('io');
+        if (io) {
+            io.to(ride.userId.toString()).emit('ride_confirmed', ride);
         }
     } catch (err) {
         console.error(err);
@@ -141,9 +186,24 @@ router.post('/rides/:id/cancel', authMiddleware, async (req, res) => {
             return res.status(400).json({ message: 'Ride cannot be cancelled' });
         }
 
+        // Get passenger info for notification
+        const passenger = await User.findById(ride.userId);
+
         // Free up the driver if one was assigned
         if (ride.driverId) {
             await User.findByIdAndUpdate(ride.driverId, { isOnline: true });
+            
+            // Notify driver via Socket.IO
+            const io = req.app.get('io');
+            if (io) {
+                io.to(ride.driverId.toString()).emit('ride_cancelled', {
+                    rideId: ride._id,
+                    passengerName: passenger?.name || 'Passenger',
+                    pickup: ride.pickup,
+                    reason: 'Passenger cancelled the ride'
+                });
+                console.log(`Ride ${ride._id} cancelled. Notified driver ${ride.driverId}`);
+            }
         }
 
         ride.status = 'cancelled';

@@ -15,7 +15,15 @@ const UserSchema = new mongoose.Schema({
     location: {
         lat: { type: Number },
         lng: { type: Number }
-    }
+    },
+    // Driver-specific fields
+    vehicle: {
+        model: { type: String },
+        type: { type: String, enum: ['economy', 'comfort', 'premium'] },
+        plate: { type: String },
+        color: { type: String }
+    },
+    rating: { type: Number, default: 5.0, min: 1, max: 5 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

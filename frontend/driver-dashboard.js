@@ -93,6 +93,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showRideRequest(ride);
             });
 
+            socket.on('ride_cancelled', (data) => {
+                console.log('Ride cancelled by passenger:', data);
+                hideRideRequest();
+                showCancellationNotification(data);
+            });
+
+            socket.on('passenger_message', (data) => {
+                console.log('Message from passenger:', data);
+                showPassengerMessage(data);
+            });
+
             socket.on('ride_cancelled_by_user', () => {
                 hideRideRequest();
                 alert("The ride request was cancelled.");
@@ -212,6 +223,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentRideRequest = null;
     }
 
+    function showCancellationNotification(data) {
+        // Create a notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            max-width: 380px;
+            animation: slideIn 0.3s ease;
+        `;
+
+        notification.innerHTML = `
+            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                Ride Cancelled
+            </div>
+            <div style="font-size: 0.95rem; line-height: 1.5;">
+                <strong>${data.passengerName}</strong> cancelled the ride.<br>
+                <small style="opacity: 0.9;">📍 ${data.pickup?.address || 'From pickup location'}</small>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    function showPassengerMessage(data) {
+        // Create a message notification
+        const msgNotification = document.createElement('div');
+        msgNotification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            color: #000;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            max-width: 380px;
+            border-left: 4px solid #007AFF;
+            animation: slideIn 0.3s ease;
+        `;
+
+        msgNotification.innerHTML = `
+            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; color: #007AFF;">
+                📬 Message from Passenger
+            </div>
+            <div style="font-size: 0.95rem; line-height: 1.5; color: #333; margin-bottom: 0.5rem;">
+                "${data.message}"
+            </div>
+            <div style="font-size: 0.75rem; color: #999;">
+                ${new Date(data.timestamp).toLocaleTimeString()}
+            </div>
+        `;
+
+        document.body.appendChild(msgNotification);
+
+        // Auto-remove after 6 seconds
+        setTimeout(() => {
+            msgNotification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => msgNotification.remove(), 300);
+        }, 6000);
+    }
+
     // Decline Action
     declineBtn.addEventListener('click', () => {
         hideRideRequest(); // Just hide the UI, we don't need to notify backend for a decline broadcast unless specific pooling is used.
@@ -238,10 +324,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(data.message || 'Failed to accept ride.');
             }
 
-            // Successfully accepted
+            // Successfully accepted - show PIN verification modal
             hideRideRequest();
-            alert('Ride Accepted! Normally you would be routed to the Active Ride map screen here.');
-            // window.location.href = `/driver-active-ride.html?rideId=${rideId}`;
+            showPinVerificationModal(rideId);
 
         } catch (err) {
             alert(err.message || 'Trace Lost.');
@@ -251,6 +336,113 @@ document.addEventListener('DOMContentLoaded', async () => {
             acceptBtn.textContent = 'INITIALIZE';
         }
     });
+
+    function showPassengerMessage(data) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 150, 255, 0.15);
+            border: 2px solid #0096ff;
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            max-width: 380px;
+            animation: slideIn 0.3s ease;
+        `;
+
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        notification.innerHTML = `
+            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                📬 Passenger Message
+            </div>
+            <div style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.5rem;">
+                ${data.message}
+            </div>
+            <small style="opacity: 0.7;">${timestamp}</small>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-dismiss after 6 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 6000);
+    }
+
+    function showPinVerificationModal(rideId) {
+        const pinOverlay = document.getElementById('pinVerificationOverlay');
+        const pinInput = document.getElementById('pinInput');
+        const pinVerifyBtn = document.getElementById('pinVerifyBtn');
+        const pinCancelBtn = document.getElementById('pinCancelBtn');
+        const pinError = document.getElementById('pinError');
+
+        pinOverlay.classList.add('active');
+        pinInput.value = '';
+        pinError.style.display = 'none';
+        pinInput.focus();
+
+        // Handle PIN verification
+        pinVerifyBtn.onclick = async () => {
+            const pin = pinInput.value.trim();
+
+            if (!pin || pin.length !== 4) {
+                pinError.textContent = 'Please enter a 4-digit PIN';
+                pinError.style.display = 'block';
+                return;
+            }
+
+            pinVerifyBtn.disabled = true;
+            pinVerifyBtn.textContent = 'VERIFYING...';
+
+            try {
+                const res = await fetch(`/api/rides/${rideId}/verify-pin`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pin })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    pinError.textContent = data.message || 'Invalid PIN';
+                    pinError.style.display = 'block';
+                    return;
+                }
+
+                // PIN verified successfully
+                pinOverlay.classList.remove('active');
+                alert('✓ PIN Verified! Ride confirmed and in progress.');
+
+            } catch (err) {
+                pinError.textContent = 'Verification failed. Try again.';
+                pinError.style.display = 'block';
+            } finally {
+                pinVerifyBtn.disabled = false;
+                pinVerifyBtn.textContent = 'VERIFY PIN';
+            }
+        };
+
+        // Handle cancel
+        pinCancelBtn.onclick = () => {
+            pinOverlay.classList.remove('active');
+        };
+
+        // Allow Enter key to submit
+        pinInput.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+                pinVerifyBtn.click();
+            }
+        };
+    }
 
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {

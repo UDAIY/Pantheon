@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- Leaflet CSS for Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
         :root {
@@ -547,6 +547,28 @@
                 opacity: 0;
             }
         }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
     </style>
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap"
@@ -637,8 +659,32 @@
         </div>
     </div>
 
+    <!-- PIN Verification Modal -->
+    <div class="request-modal-overlay" id="pinVerificationOverlay">
+        <div class="request-card" style="max-width: 400px;">
+            <div class="req-header">
+                <h3 class="req-title">VERIFY PASSENGER</h3>
+            </div>
+
+            <div style="margin: 2rem 0; text-align: center;">
+                <p style="color: #aaa; margin-bottom: 1.5rem; font-size: 0.95rem;">Ask passenger for the 4-digit verification PIN</p>
+                <input type="text" id="pinInput" placeholder="Enter PIN" maxlength="4" 
+                    style="width: 100%; padding: 1rem; font-size: 2rem; text-align: center; letter-spacing: 10px;
+                           background: rgba(0, 243, 255, 0.1); border: 2px solid var(--cyber-cyan); 
+                           color: var(--cyber-cyan); border-radius: 8px; font-family: monospace;
+                           outline: none;" autofocus>
+                <div id="pinError" style="color: #ef4444; margin-top: 1rem; font-size: 0.9rem; display: none;"></div>
+            </div>
+
+            <div class="req-actions">
+                <button class="btn-decline" id="pinCancelBtn">CANCEL</button>
+                <button class="btn-accept" id="pinVerifyBtn">VERIFY PIN</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="driver-dashboard.js"></script>
 </body>

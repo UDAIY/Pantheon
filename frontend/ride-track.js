@@ -41,6 +41,7 @@
 
     // Dummy element references
     let dummyDrivers = [];
+    let driverAssigned = false;
 
     // Fetch welcome
     fetch('/api/user/info', { headers: { 'Authorization': 'Bearer ' + token } })
@@ -50,6 +51,7 @@
 
     // Initialize
     initMap();
+    initSocket();
     loadRide();
 
     function initMap() {
@@ -57,6 +59,46 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap', maxZoom: 19
         }).addTo(map);
+    }
+
+    function initSocket() {
+        // Initialize socket connection early
+        socket = io({
+            auth: { token }
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to socket server for tracking');
+        });
+
+        // Listen for Driver Accepting the Ride
+        socket.on('ride_accepted', (updatedRide) => {
+            console.log('Driver accepted ride:', updatedRide);
+            rideData = updatedRide; // Update local state with driver details
+
+            // Switch from "Searching" to "Assigned"
+            handleDriverAssigned();
+        });
+
+        // Listen for PIN verification confirmation
+        socket.on('ride_confirmed', (confirmedRide) => {
+            console.log('Ride confirmed via PIN verification:', confirmedRide);
+            rideData = confirmedRide;
+            // Update title to show ride is confirmed
+            updateDriverState('On the way', 'Driver verified via PIN');
+        });
+
+        // Listen for real-time driver location updates
+        socket.on('driver_location_update', (loc) => {
+            if (driverMarker && driverAssigned) {
+                driverMarker.setLatLng([loc.lat, loc.lng]);
+                map.panTo([loc.lat, loc.lng], { animate: true });
+            }
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from socket server');
+        });
     }
 
     async function loadRide() {
@@ -67,21 +109,11 @@
             if (!res.ok) { window.location.href = '/index.html'; return; }
 
             rideData = await res.json();
-            const driver = rideData.driverId;
-
+            
             // Fill ride info
             rideEta.textContent = rideData.duration + ' min';
             rideDistance.textContent = rideData.distance + ' km';
             rideFare.textContent = '₹' + rideData.fare;
-
-            // Show driver info
-            if (driver) {
-                driverRow.style.display = 'flex';
-                driverAvatar.textContent = driver.name.charAt(0).toUpperCase();
-                driverName.textContent = driver.name;
-                driverVehicle.textContent = `${driver.vehicle.color} ${driver.vehicle.model} · ${driver.vehicle.plate}`;
-                driverRating.textContent = '⭐ ' + driver.rating.toFixed(1);
-            }
 
             // Place pickup marker with pulsing radar
             const pLat = rideData.pickup.lat, pLng = rideData.pickup.lng;
@@ -118,8 +150,13 @@
             setTimeout(() => { map.invalidateSize(); }, 200);
             setTimeout(() => { map.invalidateSize(); }, 500);
 
-            // Start simulation sequence
-            startSimulation();
+            // Check if driver is already assigned (in case we reload or refresh page)
+            if (rideData.driverId && rideData.status === 'driver-assigned') {
+                handleDriverAssigned();
+            } else {
+                // Start simulation sequence (shows dummy cars)
+                startSimulation();
+            }
 
         } catch (err) {
             console.error('Error loading ride:', err);
@@ -129,31 +166,6 @@
     function startSimulation() {
         const pLat = rideData.pickup.lat;
         const pLng = rideData.pickup.lng;
-
-        // Connect to Socket to listen for real updates
-        socket = io({
-            auth: { token }
-        });
-
-        socket.on('connect', () => {
-            console.log('Connected to socket server for tracking');
-        });
-
-        // Listen for Driver Accepting the Ride
-        socket.on('ride_accepted', (updatedRide) => {
-            console.log('Driver accepted ride:', updatedRide);
-            rideData = updatedRide; // Update local state with driver details
-
-            // Switch from "Searching" to "Assigned"
-            handleDriverAssigned();
-        });
-
-        socket.on('driver_location_update', (loc) => {
-            if (driverMarker) {
-                driverMarker.setLatLng([loc.lat, loc.lng]);
-                map.panTo([loc.lat, loc.lng], { animate: true });
-            }
-        });
 
         // Phase 1: "Searching for driver" UI
         searchingState.style.display = 'block';
@@ -173,11 +185,14 @@
             dummyDrivers.push(L.marker([dlat, dlng], { icon: simIcon }).addTo(map));
         }
 
-        // Phase 2: Driver Assigned - Waits for socket event instead of setTimeout
-        // We removed the setTimeout here.
+        // Phase 2: Wait for socket.io ride_accepted event
+        // handleDriverAssigned will be called via the socket listener
     }
 
     function handleDriverAssigned() {
+        // Mark driver as assigned so location updates process
+        driverAssigned = true;
+
         // Remove dummy drivers
         dummyDrivers.forEach(m => map.removeLayer(m));
         dummyDrivers = [];
@@ -185,16 +200,64 @@
         // Switch UI State
         searchingState.style.display = 'none';
         driverState.style.display = 'block';
-        updateDriverState('assigned', 'Driver Assigned', 'Your driver is on the way', 'They will arrive shortly');
+
+        const driver = rideData.driverId;
+        if (driver) {
+            // Update driver card
+            
+            // Driver avatar with initials
+            const initials = driver.name 
+                ? driver.name.split(' ').map(n => n.charAt(0)).join('').toUpperCase() 
+                : '?';
+            driverAvatar.textContent = initials;
+            driverAvatar.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            
+            // Driver name
+            driverName.textContent = driver.name || 'Unknown Driver';
+
+            // Vehicle info - plate number prominently displayed
+            const vColor = driver.vehicle?.color || 'White';
+            const vModel = driver.vehicle?.model || 'Sedan';
+            const vPlate = driver.vehicle?.plate || 'VCE-RIDE';
+            const vType = driver.vehicle?.type || 'sedan';
+
+            driverVehicle.textContent = `${vColor} ${vModel}`;
+            
+            // Update license plate display
+            const licensePlateEl = document.getElementById('licensePlate');
+            if (licensePlateEl) {
+                licensePlateEl.textContent = vPlate;
+            }
+            
+            // Rating
+            const rating = driver.rating ? driver.rating.toFixed(2) : '5.0';
+            driverRating.textContent = `⭐ ${rating}`;
+
+            // Ride info
+            rideEta.textContent = rideData.duration + ' min';
+            rideDistance.textContent = rideData.distance + ' km';
+            rideFare.textContent = '₹' + rideData.fare;
+
+            // Display the actual verification PIN
+            const pinDisplay = document.getElementById('pinDisplay');
+            if (pinDisplay && rideData.verificationPin) {
+                pinDisplay.textContent = rideData.verificationPin;
+            }
+        }
 
         const pLat = rideData.pickup.lat;
         const pLng = rideData.pickup.lng;
 
-        // Set initial Driver Marker Position (Defaulting to offset for now until live location sync)
-        const offsetLat = pLat + 0.008;
-        const offsetLng = pLng + 0.008;
+        // Get driver's initial location
+        const driver_obj = rideData.driverId;
+        const initialDLat = driver_obj?.location?.lat || (pLat + 0.008);
+        const initialDLng = driver_obj?.location?.lng || pLng;
 
-        driverMarker = L.marker([offsetLat, offsetLng], {
+        // Update status with estimated pickup time - using new confirmed style
+        updateDriverState('confirmed', 'Alex has accepted!', 'Arriving in ' + rideData.duration + ' minutes');
+
+        // Create driver marker
+        driverMarker = L.marker([initialDLat, initialDLng], {
             icon: L.divIcon({
                 className: '',
                 html: '<div class="driver-marker">🚙</div>',
@@ -203,33 +266,101 @@
             })
         }).addTo(map);
 
-        map.fitBounds(L.latLngBounds([[pLat, pLng], [offsetLat, offsetLng]]), { padding: [50, 50] });
+        // Fit map bounds
+        map.fitBounds(L.latLngBounds([[pLat, pLng], [initialDLat, initialDLng]]), { padding: [50, 50] });
 
-        // Phase 3: After 2s -> driver arriving at pickup (move marker to pickup)
-        setTimeout(() => {
-            updateDriverState('enroute', 'Driver Arriving', rideData.driverId.name + ' is almost there', 'Please be ready at the pickup point');
-            animateMarkerTo(driverMarker, [pLat, pLng], 3000, () => {
+        // Setup button listeners for new button layout
+        const callBtn = document.getElementById('callBtn');
+        const messageBtn = document.getElementById('messageBtn');
+        const sosBtn = document.getElementById('sosBtn');
 
-                // Phase 4: Arrived
-                setTimeout(() => {
-                    updateDriverState('arrived', 'Driver Arrived', rideData.driverId.name + ' has arrived', 'Meet your driver at the pickup point');
-
-                    // Phase 5: After 2s -> trip in progress
-                    setTimeout(() => {
-                        updateDriverState('inprogress', 'Trip In Progress', 'Enjoy your ride!', 'Heading to: ' + rideData.dropoff.address);
-
-                        // Remove cancel button during ride
-                        actionContainerDriver.innerHTML = '';
-
-                        // Auto zoom to full route
-                        map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
-
-                        // Animate full route
-                        animateAlongRoute();
-                    }, 2500);
-                }, 1000);
+        if (callBtn) {
+            callBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Calling driver:', driver?.name);
+                alert(`Calling ${driver?.name || 'Driver'}...`);
             });
-        }, 2000);
+        }
+
+        if (messageBtn) {
+            messageBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openMessageModal();
+            });
+        }
+
+        if (sosBtn) {
+            sosBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Alert your driver and safety team?')) {
+                    console.log('SOS activated');
+                    alert('Emergency alert sent to driver and safety team');
+                }
+            });
+        }
+
+        // Real-time socket updates will update the driverMarker position
+    }
+
+    function openMessageModal() {
+        const modal = document.getElementById('messageModal');
+        const input = document.getElementById('messageInput');
+        const charCount = document.getElementById('charCount');
+        const sendBtn = document.getElementById('sendMsgBtn');
+        const cancelBtn = document.getElementById('cancelMsgBtn');
+
+        // Clear previous message
+        input.value = '';
+        charCount.textContent = '0/200';
+
+        // Show modal
+        modal.style.display = 'flex';
+
+        // Character counter
+        input.addEventListener('input', (e) => {
+            charCount.textContent = e.target.value.length + '/200';
+        });
+
+        // Send message
+        sendBtn.onclick = () => {
+            const message = input.value.trim();
+            if (message.length === 0) {
+                alert('Please enter a message');
+                return;
+            }
+
+            // Send message via Socket.IO
+            if (socket && rideData && rideData.driverId) {
+                socket.emit('passenger_message', {
+                    driverId: rideData.driverId._id,
+                    rideId: rideId,
+                    message: message,
+                    timestamp: new Date().toISOString()
+                });
+
+                // Show confirmation
+                input.value = '';
+                charCount.textContent = '0/200';
+                modal.style.display = 'none';
+                
+                // Visual feedback
+                alert('Message sent to driver!');
+            }
+        };
+
+        // Cancel
+        cancelBtn.onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        // Click outside to close
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        input.focus();
     }
 
     function animateMarkerTo(marker, targetLatLng, duration, callback) {
@@ -284,7 +415,7 @@
     }
 
     async function completeRide() {
-        updateDriverState('completed', 'Ride Complete', 'You have arrived!', 'Thank you for riding with ViceRide');
+        updateDriverState('completed', 'Ride Complete', 'You have arrived! Thank you for riding with ViceRide');
 
         try {
             await fetch(`/api/rides/${rideId}/complete`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
@@ -295,11 +426,12 @@
         document.getElementById('homeBtn').addEventListener('click', () => { window.location.href = '/index.html'; });
     }
 
-    function updateDriverState(badgeClass, badgeText, title, subtitle) {
-        statusBadge.className = 'status-badge ' + badgeClass;
-        statusBadge.textContent = badgeText;
-        statusTitle.textContent = title;
-        statusSubtitle.textContent = subtitle;
+    function updateDriverState(badgeClass, title, subtitle) {
+        // Updated to handle new confirmed state
+        if (badgeClass !== 'confirmed') {
+            statusTitle.textContent = title;
+            statusSubtitle.textContent = subtitle;
+        }
     }
 
     async function handleCancel() {

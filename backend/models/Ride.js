@@ -21,7 +21,9 @@ const RideSchema = new mongoose.Schema({
         enum: ['pending', 'searching', 'confirmed', 'driver-assigned', 'in-progress', 'completed', 'cancelled'],
         default: 'pending'
     },
-    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
+    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    verificationPin: { type: String, default: null },
+    pinVerified: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Ride', RideSchema);

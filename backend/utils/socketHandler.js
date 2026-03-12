@@ -49,6 +49,33 @@ module.exports = function (io) {
                     'location.lat': data.lat,
                     'location.lng': data.lng
                 });
+
+                // Find if driver is currently on an active ride
+                const activeRide = await require('../models/Ride').findOne({
+                    driverId: socket.userId,
+                    status: { $in: ['driver-assigned', 'in-progress'] }
+                });
+
+                if (activeRide) {
+                    // Forward driver location to the passenger
+                    io.to(activeRide.userId.toString()).emit('driver_location_update', {
+                        lat: data.lat,
+                        lng: data.lng,
+                        rideId: activeRide._id
+                    });
+                }
+            }
+        });
+
+        socket.on('passenger_message', async (data) => {
+            // Forward passenger message to driver
+            if (data.driverId && data.rideId) {
+                io.to(data.driverId.toString()).emit('passenger_message', {
+                    rideId: data.rideId,
+                    message: data.message,
+                    timestamp: data.timestamp
+                });
+                console.log(`Message from passenger to driver ${data.driverId}: "${data.message}"`);
             }
         });
 
