@@ -72,6 +72,7 @@ router.post('/auth/register', async (req, res) => {
 
 // Login Route
 router.post('/auth/login', async (req, res) => {
+    console.log(`Login attempt for: ${req.body.email}`);
     try {
         const { email, password } = req.body;
 

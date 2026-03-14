@@ -5,8 +5,9 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 
-// Load env vars FIRST before requiring routes
-dotenv.config();
+// Load env vars from backend/.env explicitly
+dotenv.config({ path: path.join(__dirname, '.env') });
+console.log('Environment variables loaded. MONGO_URI present:', !!process.env.MONGO_URI);
 
 const authRoutes = require('./routes/auth');
 const rideRoutes = require('./routes/rides');
@@ -72,8 +73,11 @@ app.use('/api/onboarding/step5', upload.single('document'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/auth_db')
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+    .then(() => console.log('MongoDB connected successfully'))
+    .catch(err => {
+        console.error('CRITICAL: MongoDB connection error:', err.message);
+        process.exit(1); // Exit if DB connection fails in production
+    });
 
 // Routes
 app.use('/api', authRoutes);
