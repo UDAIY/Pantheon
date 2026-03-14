@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -7,6 +8,14 @@ const fs = require('fs');
 
 // Load env vars from backend/.env explicitly
 dotenv.config({ path: path.join(__dirname, '.env') });
+
+const isProd = process.env.NODE_ENV === 'production';
+if (!process.env.MONGO_URI && isProd) {
+    console.warn('WARNING: MONGO_URI is missing in production environment!');
+}
+if ((!process.env.JWT_SECRET || process.env.JWT_SECRET === 'your_secret_key') && isProd) {
+    console.warn('WARNING: JWT_SECRET is missing or insecure in production environment!');
+}
 console.log('Environment variables loaded. MONGO_URI present:', !!process.env.MONGO_URI);
 
 const authRoutes = require('./routes/auth');
@@ -61,6 +70,7 @@ const upload = multer({
 });
 
 // Middleware
+app.use(cors()); // Enable all CORS requests for consistency
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
@@ -76,8 +86,26 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/auth_db')
     .then(() => console.log('MongoDB connected successfully'))
     .catch(err => {
         console.error('CRITICAL: MongoDB connection error:', err.message);
-        process.exit(1); // Exit if DB connection fails in production
+        // Do not exit in development to allow for frontend testing/debugging
+        if (process.env.NODE_ENV === 'production') {
+            process.exit(1);
+        }
     });
+
+// Middleware to check DB connection for API routes
+const dbCheckMiddleware = (req, res, next) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({ 
+            message: 'Database connection failed. If you are on a mobile hotspot, ' +
+                     'please check your network or try a "standard" MongoDB connection string ' +
+                     'in your .env file instead of the "srv" format.'
+        });
+    }
+    next();
+};
+
+// Apply DB check only to API routes
+app.use('/api', dbCheckMiddleware);
 
 // Routes
 app.use('/api', authRoutes);

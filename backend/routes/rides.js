@@ -64,11 +64,14 @@ router.post('/rides/:id/confirm', authMiddleware, async (req, res) => {
         }
 
         // Determine the region from the pickup address
-        const availableRegions = ['New Delhi', 'Mumbai', 'Bengaluru', 'Lucknow'];
+        const availableRegions = ['New Delhi', 'Mumbai', 'Bengaluru', 'Lucknow', 'Delhi', 'Bangalore'];
         let region = 'New Delhi'; // Default
         for (const r of availableRegions) {
             if (ride.pickup.address.toLowerCase().includes(r.toLowerCase())) {
-                region = r;
+                // Map common aliases
+                if (['New Delhi', 'Delhi'].includes(r)) region = 'New Delhi';
+                else if (['Bengaluru', 'Bangalore'].includes(r)) region = 'Bengaluru';
+                else region = r;
                 break;
             }
         }
