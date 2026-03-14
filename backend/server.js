@@ -82,15 +82,43 @@ app.use('/api/onboarding/step4', upload.single('document'));
 app.use('/api/onboarding/step5', upload.single('document'));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/auth_db')
-    .then(() => console.log('MongoDB connected successfully'))
-    .catch(err => {
-        console.error('CRITICAL: MongoDB connection error:', err.message);
+const connectDB = async () => {
+    try {
+        console.log('Connecting to MongoDB...');
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/auth_db');
+        console.log('MongoDB connected successfully');
+    } catch (err) {
+        console.error('\n' + '='.repeat(50));
+        console.error('CRITICAL: MongoDB Connection Error');
+        console.error('Message:', err.message);
+        
+        if (err.message.includes('querySrv EREFUSED')) {
+            console.error('\nTROUBLESHOOTING TIP:');
+            console.error('It looks like your network/DNS cannot resolve MongoDB SRV records.');
+            console.error('This is common on mobile hotspots.');
+            console.error('FIX: Use a "Standard Connection String" (non-srv format) in your .env file.');
+            console.error('In Atlas: Drivers -> Node.js -> Version "2.2.12 or earlier" to get the standard string.');
+        } else if (err.message.includes('ETIMEDOUT')) {
+            console.error('\nTROUBLESHOOTING TIP:');
+            console.error('Connection timed out. This usually means your IP is not whitelisted in MongoDB Atlas.');
+            console.error('FIX: Go to Atlas -> Network Access and add 0.0.0.0/0 (for testing) or your current IP.');
+        }
+        
+        console.error('='.repeat(50) + '\n');
+
         // Do not exit in development to allow for frontend testing/debugging
         if (process.env.NODE_ENV === 'production') {
-            process.exit(1);
+            console.warn('Production mode: Server will continue running but API will return 503 until DB resets.');
         }
-    });
+    }
+};
+
+connectDB();
+
+// Monitor connection events
+mongoose.connection.on('disconnected', () => console.warn('MongoDB disconnected!'));
+mongoose.connection.on('reconnected', () => console.log('MongoDB reconnected!'));
+mongoose.connection.on('error', err => console.error('MongoDB error event:', err.message));
 
 // Middleware to check DB connection for API routes
 const dbCheckMiddleware = (req, res, next) => {
